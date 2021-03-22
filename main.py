@@ -40,6 +40,7 @@ player_coords = [0, 0]
 with open("map1.json", "r") as f:
     map = json.loads(f.read())
 
+map_size = 60
 tile_size = 100
 map_tiles = []
 
@@ -71,28 +72,31 @@ while running:
         if player_coords[0] > 40:
             player_coords[0] -= 5
     if pressed_keys[pygame.K_d]:
-        if player_coords[0] < 5960:
+        if player_coords[0] < map_size * tile_size - 40:
             player_coords[0] += 5
     if pressed_keys[pygame.K_z]:
         if player_coords[1] > 40:
             player_coords[1] -= 5
     if pressed_keys[pygame.K_s]:
-        if player_coords[1] < 5960:
+        if player_coords[1] < map_size * tile_size - 40:
             player_coords[1] += 5
 
     # background color
     screen.fill((50, 50, 50))
 
     # adding map tiles to the screen
-    for map_tile in map_tiles:
-        map_tile.update(screen, player_coords)
+    tiles_rendered = sum([map_tile.update(screen, player_coords) for map_tile in map_tiles])
+    # for map_tile in map_tiles:
+    #     map_tile.update(screen, player_coords)
     
     screen.blit(player.surf, (SCREEN_WIDTH/2 - 75/2, SCREEN_HEIGHT/2 - 75/2))
 
     # debug
-    textsurface = myfont.render(str(player_coords), True, (250, 250, 250))
-    textrect = textsurface.get_rect()
-    screen.blit(textsurface, (5, 5))
+    playercoords = myfont.render(str(player_coords), True, (250, 250, 250))
+    screen.blit(playercoords, (5, 5))
+    
+    tiles_number = myfont.render("Rendered tiles : " + str(tiles_rendered), True, (250, 250, 250))
+    screen.blit(tiles_number, (5, 50))
 
     # render elements to the screen
     pygame.display.flip()
