@@ -19,7 +19,10 @@ from pygame.locals import (
 pygame.init()
 pygame.font.init()
 
-myfont = pygame.font.SysFont('Comic Sans MS', 30)
+# window title
+pygame.display.set_caption("NSI project")
+
+myfont = pygame.font.SysFont("freesansbold.ttf", 48)
 
 # setting up display
 SCREEN_WIDTH = 1920
@@ -61,17 +64,21 @@ while running:
 
         elif event.type == QUIT:
             running = False
-    
+
     # changing player coords when pressing keys
     pressed_keys = pygame.key.get_pressed()
     if pressed_keys[pygame.K_q]:
-        player_coords[0] -= 5
+        if player_coords[0] > 40:
+            player_coords[0] -= 5
     if pressed_keys[pygame.K_d]:
-        player_coords[0] += 5
+        if player_coords[0] < 5960:
+            player_coords[0] += 5
     if pressed_keys[pygame.K_z]:
-        player_coords[1] += 5
+        if player_coords[1] > 40:
+            player_coords[1] -= 5
     if pressed_keys[pygame.K_s]:
-        player_coords[1] -= 5
+        if player_coords[1] < 5960:
+            player_coords[1] += 5
 
     # background color
     screen.fill((50, 50, 50))
@@ -81,6 +88,11 @@ while running:
         map_tile.update(screen, player_coords)
     
     screen.blit(player.surf, (SCREEN_WIDTH/2 - 75/2, SCREEN_HEIGHT/2 - 75/2))
+
+    # debug
+    textsurface = myfont.render(str(player_coords), True, (250, 250, 250))
+    textrect = textsurface.get_rect()
+    screen.blit(textsurface, (5, 5))
 
     # render elements to the screen
     pygame.display.flip()
