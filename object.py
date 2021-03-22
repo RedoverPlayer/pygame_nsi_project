@@ -1,0 +1,20 @@
+# Import the pygame module
+import pygame
+from pygame.cursors import tri_left
+
+# Player
+class Object(pygame.sprite.Sprite):
+    def __init__(self, screen_width, screen_height, x, y, tile_size, type="wall"):
+        super(Object, self).__init__()
+        self.surf = pygame.Surface((tile_size, tile_size))
+        self.surf.fill((255, 115, 0) if type == "wall" else (0, 140, 255) if type=="water" else (0, 81, 0))
+        self.rect = self.surf.get_rect()
+        self.screen_width = screen_width
+        self.screen_height = screen_height
+        self.coords = [x, y]
+        self.type = type
+        self.tile_size = tile_size
+
+    def update(self, screen, player_coords):
+        if ((self.coords[0] - player_coords[0]) + self.screen_width / 2) > -1 * self.tile_size and ((self.coords[0] - player_coords[0]) + self.screen_width / 2) < self.screen_width and (self.coords[1] - player_coords[1]) + self.screen_height / 2 > 0 and ((self.coords[1] - player_coords[1]) + self.screen_height / 2) < self.screen_height + self.tile_size:
+            screen.blit(self.surf, ((self.coords[0] - player_coords[0]) + self.screen_width / 2, (player_coords[1] - self.coords[1]) + self.screen_height / 2))
