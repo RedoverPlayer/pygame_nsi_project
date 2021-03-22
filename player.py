@@ -1,7 +1,5 @@
-# Import the pygame module
 import pygame
 
-# Player
 class Player(pygame.sprite.Sprite):
     def __init__(self, screen_width, screen_height):
         super(Player, self).__init__()
@@ -21,7 +19,6 @@ class Player(pygame.sprite.Sprite):
         if pressed_keys[pygame.K_d]:
             self.rect.move_ip(speed, 0)
 
-    # Keep player on the screen
         if self.rect.left < 0:
             self.rect.left = 0
         if self.rect.right > self.screen_width:
