@@ -34,7 +34,6 @@ screen.fill((50, 50, 50))
 
 # loading player
 player = player.Player(SCREEN_WIDTH, SCREEN_HEIGHT)
-player_coords = [0, 0]
 
 # loading map tiles
 with open("map1.json", "r") as f:
@@ -73,33 +72,14 @@ while running:
 
     # changing player coords when pressing keys
     pressed_keys = pygame.key.get_pressed()
-    movement_speed = 2 * tick_time / 8
-    if pressed_keys[pygame.K_q]:
-        if player_coords[0] - movement_speed > 38:
-            player_coords[0] -= movement_speed
-        else:
-            player_coords[0] -= player_coords[0] - 38
-    if pressed_keys[pygame.K_d]:
-        if player_coords[0] + movement_speed < map_size * tile_size - 38:
-            player_coords[0] += movement_speed
-        else:
-            player_coords[0] -= player_coords[0] - (map_size * tile_size - 38)
-    if pressed_keys[pygame.K_z]:
-        if player_coords[1] - movement_speed > 38:
-            player_coords[1] -= movement_speed
-        else:
-            player_coords[1] -= player_coords[1] - 38
-    if pressed_keys[pygame.K_s]:
-        if player_coords[1] + movement_speed < map_size * tile_size - 38:
-            player_coords[1] += movement_speed
-        else:
-            player_coords[1] -= player_coords[1] - (map_size * tile_size - 38)
 
     # background color
     screen.fill((50, 50, 50))
 
     # adding map tiles to the screen
-    tiles_rendered = [elem for elem in [map_tile.update(screen, player_coords) for map_tile in map_tiles] if elem != None]
+    tiles_rendered = [elem for elem in [map_tile.update(screen, player.coords) for map_tile in map_tiles] if elem != None]
+
+    player.update(pressed_keys, tiles_rendered, map_size, tile_size, tick_time, 2)
 
     # for map_tile in tiles_rendered:
     #     if player.rect.colliderect(map_tile.rect):
@@ -109,7 +89,7 @@ while running:
     screen.blit(player.surf, (SCREEN_WIDTH/2 - 75/2, SCREEN_HEIGHT/2 - 75/2))
 
     # debug
-    playercoords = myfont.render(str(player_coords), True, (250, 250, 250))
+    playercoords = myfont.render(str(player.coords), True, (250, 250, 250))
     screen.blit(playercoords, (5, 5))
     
     tiles_number = myfont.render("Rendered tiles : " + str(len(tiles_rendered)), True, (250, 250, 250))
@@ -117,6 +97,3 @@ while running:
 
     # render elements to the screen
     pygame.display.flip()
-
-    # calibrated for 100 Hz
-    # time.sleep(0.01)

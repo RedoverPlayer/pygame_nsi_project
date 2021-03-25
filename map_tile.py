@@ -3,7 +3,6 @@ from pygame.cursors import tri_left
 
 class MapTile(pygame.sprite.Sprite):
     def __init__(self, screen_width, screen_height, x, y, tile_size, type="wall"):
-        print(x, y)
         super(MapTile, self).__init__()
         self.surf = pygame.Surface((tile_size, tile_size))
         self.surf.fill((255, 115, 0) if type == "wall" else (0, 140, 255) if type == "water" else (0, 81, 0))

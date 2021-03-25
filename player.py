@@ -6,24 +6,31 @@ class Player(pygame.sprite.Sprite):
         self.surf = pygame.Surface((75, 75))
         self.surf.fill((255, 255, 255))
         self.rect = self.surf.get_rect()
+
+        self.coords = [0, 0]
+
         self.screen_width = screen_width
         self.screen_height = screen_height
 
-    def update(self, pressed_keys, speed=1):
-        if pressed_keys[pygame.K_z]:
-            self.rect.move_ip(0, -1 * speed)
-        if pressed_keys[pygame.K_s]:
-            self.rect.move_ip(0, speed)
+    def update(self, pressed_keys, rendered_tiles, map_size, tile_size, tick_time, speed=2):
+        movement_speed = 2 * tick_time / 8
         if pressed_keys[pygame.K_q]:
-            self.rect.move_ip(-1 * speed, 0)
+            if self.coords[0] - movement_speed > 38:
+                self.coords[0] -= movement_speed
+            else:
+                self.coords[0] -= self.coords[0] - 38
         if pressed_keys[pygame.K_d]:
-            self.rect.move_ip(speed, 0)
-
-        if self.rect.left < 0:
-            self.rect.left = 0
-        if self.rect.right > self.screen_width:
-            self.rect.right = self.screen_width
-        if self.rect.top <= 0:
-            self.rect.top = 0
-        if self.rect.bottom >= self.screen_height:
-            self.rect.bottom = self.screen_height
+            if self.coords[0] + movement_speed < map_size * tile_size - 38:
+                self.coords[0] += movement_speed
+            else:
+                self.coords[0] -= self.coords[0] - (map_size * tile_size - 38)
+        if pressed_keys[pygame.K_z]:
+            if self.coords[1] - movement_speed > 38:
+                self.coords[1] -= movement_speed
+            else:
+                self.coords[1] -= self.coords[1] - 38
+        if pressed_keys[pygame.K_s]:
+            if self.coords[1] + movement_speed < map_size * tile_size - 38:
+                self.coords[1] += movement_speed
+            else:
+                self.coords[1] -= self.coords[1] - (map_size * tile_size - 38)
