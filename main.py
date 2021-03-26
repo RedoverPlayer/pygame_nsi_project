@@ -33,7 +33,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 screen.fill((50, 50, 50))
 
 # loading player
-player = player.Player(SCREEN_WIDTH, SCREEN_HEIGHT)
+player = player.Player(SCREEN_WIDTH, SCREEN_HEIGHT, (60, 60))
 
 # loading map tiles
 with open("map1.json", "r") as f:
@@ -43,6 +43,7 @@ map_size = 60
 tile_size = 100
 map_tiles = []
 
+# generating map tiles
 x_coord = 0
 y_coord = 0
 
@@ -51,7 +52,7 @@ for y in map:
     for x in y:
         map_tiles.append(map_tile.MapTile(SCREEN_WIDTH, SCREEN_HEIGHT, x_coord, y_coord, tile_size, x))
         x_coord += tile_size
-    y_coord -= tile_size
+    y_coord += tile_size
 
 running = True
 
@@ -63,11 +64,7 @@ while running:
     tick_time = clock.tick(144)
 
     for event in pygame.event.get():
-        if event.type == KEYDOWN:
-            if event.key == K_ESCAPE:
-                running = False
-
-        elif event.type == QUIT:
+        if event.type == QUIT:
             running = False
 
     # changing player coords when pressing keys
@@ -86,7 +83,8 @@ while running:
     #         if map_tile.type == "wall":
     #             print("hey")
 
-    screen.blit(player.surf, (SCREEN_WIDTH/2 - 75/2, SCREEN_HEIGHT/2 - 75/2))
+    # add the player to the screen
+    screen.blit(player.surf, (SCREEN_WIDTH/2 - player.size[0]/2, SCREEN_HEIGHT/2 - player.size[1]/2))
 
     # debug
     playercoords = myfont.render(str(player.coords), True, (250, 250, 250))
