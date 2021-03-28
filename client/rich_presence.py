@@ -1,20 +1,12 @@
 from pypresence import Presence
 import os
-import asyncio
 import time
-from asyncio import (
-    new_event_loop as new_loop,
-    set_event_loop as set_loop )
-
-loop = asyncio.get_event_loop()
-
 
 client_id = '825326652124430366'
 RPC = Presence(client_id=client_id)
 
 try:
     c = RPC.connect()
-    RPC.update_event_loop()
 except:
     print("RPC connection failed. Maybe discord is not running")
 

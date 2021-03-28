@@ -14,12 +14,6 @@ class MapTile(pygame.sprite.Sprite):
         self.tile_size = tile_size
 
         # Rect coords
-        self.top_left = (x, y)
-        self.top_right = (x + tile_size, y)
-
-        self.bottom_right = (x + tile_size, y + tile_size)
-        self.bottom_left = (x, y + tile_size)
-
         self.left = x
         self.right = x + tile_size
         self.top = y

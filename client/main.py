@@ -76,11 +76,11 @@ def main_thread(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, rplayer):
         # adding map tiles to the screen
         tiles_rendered = [elem for elem in [map_tile.update(screen, player.coords) for map_tile in map_tiles] if elem != None]
 
+        rplayer.update(screen, player.coords)
         player.update(pressed_keys, tiles_rendered, map_size, tile_size, tick_time, 2)
 
         # test for remote player
-        rplayer.update(screen, player.coords)
-
+        
         # add the player to the screen
         screen.blit(player.surf, (SCREEN_WIDTH/2 - player.size[0]/2, SCREEN_HEIGHT/2 - player.size[1]/2))
         udp_socket.sendCoords(udp_sock, ("localhost", 12861), player.coords)

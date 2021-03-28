@@ -12,12 +12,6 @@ class Player(pygame.sprite.Sprite):
 
         self.size = size
 
-        self.top_left = (-size[0] // 2, size[0] // 2)
-        self.top_right = (size[0] // 2, size[0] // 2)
-
-        self.bottom_left = (-size[0] // 2, -size[0] // 2)
-        self.bottom_right = (size[0] // 2, -size[0] // 2)
-
         self.screen_width = screen_width
         self.screen_height = screen_height
 
@@ -37,6 +31,7 @@ class Player(pygame.sprite.Sprite):
                     if (tile.type == "wall") and (bottom > tile.top) and (top < tile.bottom) and (left >= tile.right) and (left - movement_speed < tile.right):
                         self.coords[0] -= tile.right - left
                         moved = True
+                        break
                 if not moved:
                     self.coords[0] -= movement_speed
             else:
@@ -46,10 +41,11 @@ class Player(pygame.sprite.Sprite):
             if self.coords[0] + movement_speed < map_size * tile_size - self.size[0] // 2:
                 moved = False
                 for tile in rendered_tiles:
-                    # check if the left side of the player collides with the right side of the tile
+                    # check if the right side of the player collides with the left side of the tile
                     if (tile.type == "wall") and (bottom > tile.top) and (top < tile.bottom) and (right <= tile.left) and (right + movement_speed > tile.left):
                         self.coords[0] += tile.left - right
                         moved = True
+                        break
                 if not moved:
                     self.coords[0] += movement_speed
             else:
@@ -59,10 +55,11 @@ class Player(pygame.sprite.Sprite):
             if self.coords[1] - movement_speed > self.size[1] // 2:
                 moved = False
                 for tile in rendered_tiles:
-                    # check if the left side of the player collides with the right side of the tile
+                    # check if the top of the player collides with the bottom of the tile
                     if (tile.type == "wall") and (right > tile.left) and (left < tile.right) and (top >= tile.bottom) and (top - movement_speed < tile.bottom):
                         self.coords[1] += tile.bottom - top
                         moved = True
+                        break
                 if not moved:
                     self.coords[1] -= movement_speed
             else:
@@ -71,10 +68,11 @@ class Player(pygame.sprite.Sprite):
             if self.coords[1] + movement_speed < map_size * tile_size - self.size[1] // 2:
                 moved = False
                 for tile in rendered_tiles:
-                    # check if the left side of the player collides with the right side of the tile
+                    # check if the bottom of the player collides with the top of the tile
                     if (tile.type == "wall") and (right > tile.left) and (left < tile.right) and (bottom <= tile.top) and (bottom + movement_speed > tile.top):
                         self.coords[1] += tile.top - bottom
                         moved = True
+                        break
                 if not moved:
                     self.coords[1] += movement_speed
             else:
