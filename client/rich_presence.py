@@ -19,8 +19,8 @@ def updatePresence(details="Idle", state="En développement", party_size=None, p
             large_image="main_logo",
             large_text ="Ouais le nom est pas ouf mais en vrai ça passe",
             party_size=party_size,
-            party_id="52525252",
-            join="a43aze5az4e5za4e52",
+            party_id="15",
+            join="test1234",
             pid=os.getpid()
         )
         print(test)
@@ -34,7 +34,7 @@ def updatePresence(details="Idle", state="En développement", party_size=None, p
 
 while True:
     updatePresence(party_size=[1,2], party_id="testid", join="testjoin")
-    time.sleep(5)
+    time.sleep(15)
 
 input("test")
 
