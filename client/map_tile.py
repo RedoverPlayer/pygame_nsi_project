@@ -5,12 +5,12 @@ class MapTile(pygame.sprite.Sprite):
     def __init__(self, screen_width, screen_height, x, y, tile_size, type="wall"):
         super(MapTile, self).__init__()
         self.surf = pygame.Surface((tile_size, tile_size))
-        self.surf.fill((255, 115, 0) if type == "wall" else (0, 140, 255) if type == "water" else (0, 81, 0))
+        self.type = type
+        self.surf.fill((255, 115, 0) if self.type == "wall" else (0, 140, 255) if self.type == "water" else (255, 255, 0) if self.type == "bush" else (65, 191, 98) if self.type == "cactus" else (204, 121, 63) if self.type == "barrel" else (234, 163, 94) if self.type == "box" else (0, 81, 0))
         self.rect = self.surf.get_rect()
         self.screen_width = screen_width
         self.screen_height = screen_height
         self.coords = [x, y]
-        self.type = type
         self.tile_size = tile_size
 
         # Rect coords

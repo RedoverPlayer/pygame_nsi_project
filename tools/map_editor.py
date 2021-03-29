@@ -35,7 +35,7 @@ class MapTile(pygame.sprite.Sprite):
 
     def update(self, screen, mouse, tool, mouse_buttons):
         if mouse[0] > self.left and mouse[0] < self.right and mouse[1] > self.top and mouse[1] < self.bottom:
-            self.surf.fill((255, 115, 0) if tool == "wall" else (0, 140, 255) if tool == "water" else (0, 81, 0))
+            self.surf.fill((255, 115, 0) if tool == "wall" else (0, 140, 255) if tool == "water" else (255, 255, 0) if tool == "bush" else (65, 191, 98) if tool == "cactus" else (204, 121, 63) if tool == "barrel" else (234, 163, 94) if tool == "box" else (0, 81, 0))
             screen.blit(self.surf, (self.coords[0], self.coords[1]))
 
             if mouse_buttons[0]:
@@ -45,7 +45,7 @@ class MapTile(pygame.sprite.Sprite):
             elif mouse_buttons[2]:
                 self.type = "terrain"
         else:
-            self.surf.fill((255, 115, 0) if self.type == "wall" else (0, 140, 255) if self.type == "water" else (0, 81, 0))
+            self.surf.fill((255, 115, 0) if self.type == "wall" else (0, 140, 255) if self.type == "water" else (255, 255, 0) if self.type == "bush" else (65, 191, 98) if self.type == "cactus" else (204, 121, 63) if self.type == "barrel" else (234, 163, 94) if self.type == "box" else (0, 81, 0))
             screen.blit(self.surf, (self.coords[0], self.coords[1]))
 
 SCREEN_WIDTH = window_size[0]
@@ -82,7 +82,7 @@ running = True
 
 clock = pygame.time.Clock()
 
-tools = ["wall", "water"]
+tools = ["wall", "water", "bush", "cactus", "barrel", "box"]
 tool = 0
 
 # main loop
