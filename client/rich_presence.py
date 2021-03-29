@@ -1,41 +1,35 @@
 from pypresence import Presence
 import os
-import time
 
-client_id = '825326652124430366'
-RPC = Presence(client_id=client_id)
+class RichPresence:
+    def __init__(self, client_id):
+        self.presence = Presence(client_id=client_id)
+        self.connected = False
 
-try:
-    c = RPC.connect()
-except:
-    print("RPC connection failed. Maybe discord is not running")
+    def connect(self):
+        self.presence.connect()
 
-lock_status = False
+    def update(self, state, large_text=None, details=None, party_size=None, party_id=None, join=None):
+        try:
+            if party_size != None:
+                self.presence.update(
+                    state=state,
+                    large_image = "main_logo",
+                    large_text = large_text,
+                    party_size=party_size,
+                    party_id=party_id,
+                    join=join,
+                    pid=os.getpid()
+                )
+            else:
+                self.presence.update(
+                    state=state,
+                    large_image = "main_logo",
+                    large_text = large_text,
+                    pid=os.getpid(),
+                )
+        except Exception as exception:
+            print(exception)
+            self.connected = False
 
-def updatePresence(details="Idle", state="En développement", party_size=None, party_id=None, join=None):
-    if party_size != None:
-        test = RPC.update(
-            state=state,
-            large_image="main_logo",
-            large_text ="Ouais le nom est pas ouf mais en vrai ça passe",
-            party_size=party_size,
-            party_id="15",
-            join="test1234",
-            pid=os.getpid()
-        )
-        print(test)
-    else:
-        RPC.update(
-            state=state,
-            large_image="main_logo",
-            large_text ="Ouais le nom est pas ouf mais en vrai ça passe",
-            pid=os.getpid(),
-        )
-
-while True:
-    updatePresence(party_size=[1,2], party_id="testid", join="testjoin")
-    time.sleep(15)
-
-input("test")
-
-# details=f"Loot : ${loot} | Cut : ${cut}",
+# updatePresence(party_size=[1,2], party_id="testid", join="testjoin")

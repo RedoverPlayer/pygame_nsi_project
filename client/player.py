@@ -26,17 +26,10 @@ class Player(pygame.sprite.Sprite):
         if pressed_keys[pygame.K_q]:
             if self.coords[0] - movement_speed > self.size[0] // 2:
                 moved = False
-                print("-----------")
                 for tile in rendered_tiles:
                     # check if the left side of the player collides with the right side of the tile
                     if (tile.type == "wall" or tile.type == "cactus" or tile.type == "barrel" or tile.type == "box") and (bottom > tile.top) and (top < tile.bottom) and (left >= tile.right) and (left - movement_speed < tile.right):
-                        print("----")
-                        print(tile.right - left)
-                        print(tile.right)
-                        print(left)
-                        print("Before move : ", self.coords[0])
                         self.coords[0] += tile.right - left
-                        print("After move : ", self.coords[0])
                         moved = True
                         break
                 if not moved:
