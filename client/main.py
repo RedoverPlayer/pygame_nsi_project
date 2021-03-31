@@ -8,6 +8,7 @@ import player as p
 import map_tile
 import remote_player
 import udp_socket
+import camera as c
 
 from pygame.locals import (
     QUIT,
@@ -28,6 +29,8 @@ def main_thread(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, rplayer):
 
     # loading player
     player = p.Player(SCREEN_WIDTH, SCREEN_HEIGHT, (60, 60))
+    camera = c.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
+    cinematic = False
 
     # loading map tiles
     with open("map1.json", "r") as f:
@@ -68,15 +71,17 @@ def main_thread(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, rplayer):
         screen.fill((50, 50, 50))
 
         # adding map tiles to the screen
-        tiles_rendered = [elem for elem in [map_tile.update(screen, player.coords) for map_tile in map_tiles] if elem != None]
+        tiles_rendered = [elem for elem in [map_tile.update(screen, camera.coords) for map_tile in map_tiles] if elem != None]
 
-        rplayer.update(screen, player.coords)
+        # update elements
+
+        rplayer.update(screen, camera.coords)
         player.update(pressed_keys, tiles_rendered, map_size, tile_size, tick_time, 2)
+        if not cinematic:
+            camera.update(player.coords)
 
-        # test for remote player
-        
         # add the player to the screen
-        screen.blit(player.surf, (SCREEN_WIDTH/2 - player.size[0]/2, SCREEN_HEIGHT/2 - player.size[1]/2))
+        screen.blit(player.surf, (SCREEN_WIDTH/2 + player.coords[0] - camera.coords[0] - player.size[0]/2, SCREEN_HEIGHT/2 + player.coords[1] - camera.coords[1] - player.size[1]/2))
         udp_socket.sendCoords(udp_sock, ("localhost", 12861), player.coords)
 
         # debug
