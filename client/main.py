@@ -15,13 +15,6 @@ from pygame.locals import (
 )
 
 def main_thread(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, rplayer, map_size, tile_size, cinematic, camera):
-    # initialize pygame
-    pygame.init()
-    pygame.font.init()
-
-    # window title
-    pygame.display.set_caption("NSI project")
-
     myfont = pygame.font.SysFont("freesansbold.ttf", 48)
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
@@ -51,11 +44,20 @@ def main_thread(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, rplayer, map_size, tile_s
 
     clock = pygame.time.Clock()
     
+    # variables for on screen debug
+    tmp = player.coords.copy()
+    count = 0
+    speed = "0"
+    fps = 0
+    fps_text = "1"
+
     # main loop
     while running:
         # The game runs at max 144 FPS (a little less due to the time of computation of each frame)
         tick_time = clock.tick(144)
-
+        count += tick_time
+        fps += 1
+        
         for event in pygame.event.get():
             if event.type == QUIT:
                 running = False
@@ -70,16 +72,14 @@ def main_thread(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, rplayer, map_size, tile_s
         tiles_rendered = [elem for elem in [map_tile.update(screen, camera.coords) for map_tile in map_tiles] if elem != None]
 
         # update elements
-
         rplayer.update(screen, camera.coords)
-        player.update(pressed_keys, tiles_rendered, map_size, tile_size, tick_time, 2)
+        player.update(pressed_keys, tiles_rendered, map_size, tile_size, tick_time, screen, camera, 2)
 
         # ensure camera does not go to the border
         if not cinematic:
             camera.update(player.coords, map_size, tile_size)
 
-        # add the player to the screen
-        screen.blit(player.surf, (SCREEN_WIDTH/2 + player.coords[0] - camera.coords[0] - player.size[0]/2, SCREEN_HEIGHT/2 + player.coords[1] - camera.coords[1] - player.size[1]/2))
+        # add the player to the screens
         udp_socket.sendCoords(udp_sock, ("localhost", 12861), player.coords)
 
         # debug
@@ -88,6 +88,19 @@ def main_thread(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, rplayer, map_size, tile_s
         
         tiles_number = myfont.render("Rendered tiles : " + str(len(tiles_rendered)), True, (250, 250, 250))
         screen.blit(tiles_number, (5, 50))
+
+        if count >= 1000:
+            count = 0
+            fps_text = str(fps)
+            fps = 0
+            speed = str(round(((player.coords[0] - tmp[0])**2 + (player.coords[1] - tmp[1])**2)**0.5, 2))
+            tmp = player.coords.copy()
+
+        player_speed = myfont.render("Speed : " + speed, True, (250, 250, 250))
+        screen.blit(player_speed, (5, 100))
+
+        fps_display = myfont.render(fps_text + " FPS", True, (250, 250, 250))
+        screen.blit(fps_display, (5, 150))
 
         # render elements to the screen
         pygame.display.flip()
@@ -101,6 +114,13 @@ def socket_receive(udp_sock, rplayer):
             rplayer.coords = data["coords"]
         # except:
         #     pass
+
+# initialize pygame
+pygame.init()
+pygame.font.init()
+
+# window title
+pygame.display.set_caption("NSI project")
 
 # ---- config ----
 SCREEN_WIDTH = 1920

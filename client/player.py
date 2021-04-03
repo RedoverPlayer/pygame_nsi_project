@@ -7,6 +7,8 @@ class Player(pygame.sprite.Sprite):
         self.surf.fill((255, 255, 255))
         self.rect = self.surf.get_rect()
         self.size = size
+        
+        self.username = Username("Test Player")
 
         self.coords = [0, 0]
 
@@ -15,7 +17,7 @@ class Player(pygame.sprite.Sprite):
         self.screen_width = screen_width
         self.screen_height = screen_height
 
-    def update(self, pressed_keys, rendered_tiles, map_size, tile_size, tick_time, speed=2):
+    def update(self, pressed_keys, rendered_tiles, map_size, tile_size, tick_time, screen, camera, speed=2):
         movement_speed = 2 * tick_time // 8
 
         left = self.coords[0] - self.size[0] // 2
@@ -78,3 +80,17 @@ class Player(pygame.sprite.Sprite):
                     self.coords[1] += movement_speed
             else:
                 self.coords[1] -= self.coords[1] - (map_size * tile_size - self.size[1] // 2)
+        
+        screen.blit(self.surf, (self.screen_width/2 + self.coords[0] - camera.coords[0] - self.size[0]/2, self.screen_height/2 + self.coords[1] - camera.coords[1] - self.size[1]/2))
+        screen.blit(self.username.surf,
+        (
+            self.screen_width/2 + self.coords[0] - camera.coords[0] - self.size[0]/2 - (self.username.width - self.size[0]) // 2,
+            self.screen_height/2 + self.coords[1] - camera.coords[1] - self.size[1]/2 - self.username.height * 2)
+        )
+
+class Username:
+    def __init__(self, username):
+        self.font = pygame.font.SysFont("freesansbold.ttf", 20)
+        self.surf = self.font.render(username, True, (250, 250, 250))
+        self.width = self.surf.get_width()
+        self.height = self.surf.get_height()
