@@ -8,12 +8,13 @@ import player as p
 import map_tile
 import remote_player
 import udp_socket
+import camera as c
 
 from pygame.locals import (
     QUIT,
 )
 
-def main_thread(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, rplayer):
+def main_thread(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, rplayer, map_size, tile_size, cinematic, camera):
     # initialize pygame
     pygame.init()
     pygame.font.init()
@@ -33,8 +34,6 @@ def main_thread(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, rplayer):
     with open("map1.json", "r") as f:
         map = json.loads(f.read())
 
-    map_size = 60
-    tile_size = 100
     map_tiles = []
 
     # generating map tiles
@@ -68,15 +67,19 @@ def main_thread(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, rplayer):
         screen.fill((50, 50, 50))
 
         # adding map tiles to the screen
-        tiles_rendered = [elem for elem in [map_tile.update(screen, player.coords) for map_tile in map_tiles] if elem != None]
+        tiles_rendered = [elem for elem in [map_tile.update(screen, camera.coords) for map_tile in map_tiles] if elem != None]
 
-        rplayer.update(screen, player.coords)
+        # update elements
+
+        rplayer.update(screen, camera.coords)
         player.update(pressed_keys, tiles_rendered, map_size, tile_size, tick_time, 2)
 
-        # test for remote player
-        
+        # ensure camera does not go to the border
+        if not cinematic:
+            camera.update(player.coords, map_size, tile_size)
+
         # add the player to the screen
-        screen.blit(player.surf, (SCREEN_WIDTH/2 - player.size[0]/2, SCREEN_HEIGHT/2 - player.size[1]/2))
+        screen.blit(player.surf, (SCREEN_WIDTH/2 + player.coords[0] - camera.coords[0] - player.size[0]/2, SCREEN_HEIGHT/2 + player.coords[1] - camera.coords[1] - player.size[1]/2))
         udp_socket.sendCoords(udp_sock, ("localhost", 12861), player.coords)
 
         # debug
@@ -99,18 +102,29 @@ def socket_receive(udp_sock, rplayer):
         # except:
         #     pass
 
+# ---- config ----
 SCREEN_WIDTH = 1920
 SCREEN_HEIGHT = 1080
 
+map_size = 60
+tile_size = 80
+# -----------------
+
+cinematic = False
+
 remoteplayer = remote_player.RemotePlayer(SCREEN_WIDTH, SCREEN_HEIGHT)
+camera = c.Camera(SCREEN_WIDTH, SCREEN_HEIGHT, map_size, tile_size)
 
 # connect socket
 udp_sock = udp_socket.connect("localhost", 12861)
 
 # data_lock = threading.Lock()
-
-thread_1 = threading.Thread(target=main_thread, args=(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, remoteplayer, ))
+thread_1 = threading.Thread(target=main_thread, args=(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, remoteplayer, map_size, tile_size, cinematic, camera, ))
 thread_2 = threading.Thread(target=socket_receive, args=(udp_sock, remoteplayer, ))
+thread_3 = threading.Thread(target=c.move_camera_to, args=((camera.width // 2 - tile_size, camera.height // 2 - tile_size), map_size, tile_size, cinematic, camera, ))
 
 thread_1.start()
 thread_2.start()
+
+time.sleep(1)
+thread_3.start()
