@@ -55,6 +55,7 @@ def main_thread(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, rplayer, map_size, tile_s
     speed = "0"
     fps = 0
     fps_text = "1"
+    time1 = time.time()
 
     # main loop
     while running:
@@ -106,11 +107,14 @@ def main_thread(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, rplayer, map_size, tile_s
         screen.blit(tiles_number, (5, 50))
 
         if count >= 1000:
-            count = 0
-            fps_text = str(fps)
-            fps = 0
             speed = str(round(((player.coords[0] - tmp[0])**2 + (player.coords[1] - tmp[1])**2)**0.5, 2))
             tmp = player.coords.copy()
+            count = 0
+
+        if (time.time() - time1) >= 1:
+            fps_text = str(int(fps // (time.time() - time1)))
+            fps = 0
+            time1 = time.time()
 
         player_speed = myfont.render("Speed : " + speed, True, (250, 250, 250))
         screen.blit(player_speed, (5, 100))
