@@ -3,6 +3,7 @@ import pygame
 import json
 import time
 import threading
+import multiprocessing
 
 import player as p
 import map_tile
@@ -35,10 +36,14 @@ def main_thread(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, rplayer, map_size, tile_s
 
     for y in map:
         x_coord = 0
+        tmp = []
         for x in y:
-            map_tiles.append(map_tile.MapTile(SCREEN_WIDTH, SCREEN_HEIGHT, x_coord, y_coord, tile_size, x))
+            tmp.append(map_tile.MapTile(SCREEN_WIDTH, SCREEN_HEIGHT, x_coord, y_coord, tile_size, x))
             x_coord += tile_size
+        map_tiles.append(tmp)
         y_coord += tile_size
+
+    manager = multiprocessing.Manager()
 
     running = True
 
@@ -69,7 +74,18 @@ def main_thread(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, rplayer, map_size, tile_s
         screen.fill((50, 50, 50))
 
         # adding map tiles to the screen
-        tiles_rendered = [elem for elem in [map_tile.update(screen, camera.coords) for map_tile in map_tiles] if elem != None]
+        screen_borders = (camera.coords[0] - SCREEN_WIDTH // 2, camera.coords[1] - SCREEN_HEIGHT // 2)
+        tiles_in_viewport = []
+        for i in range(SCREEN_HEIGHT // tile_size + 2):
+            i2 = 0
+            left_limit = screen_borders[0] // tile_size
+            if (left_limit) < 0:
+                left_limit = 0
+            for tile in map_tiles[screen_borders[1] // 80 + i][left_limit:screen_borders[0] // tile_size + SCREEN_WIDTH // tile_size + 1]:
+                tiles_in_viewport.append(tile)
+                i2 += 1
+
+        tiles_rendered = [tile.update(screen, camera.coords) for tile in tiles_in_viewport]
 
         # update elements
         rplayer.update(screen, camera.coords)
@@ -115,36 +131,41 @@ def socket_receive(udp_sock, rplayer):
         # except:
         #     pass
 
-# initialize pygame
-pygame.init()
-pygame.font.init()
+def render_tiles(tiles_rendered, map_tiles, queue, camera_coords):
+    screen = queue.get()
+    tiles_rendered += [elem for elem in [map_tile.update(screen, camera_coords) for map_tile in map_tiles] if elem != None]
 
-# window title
-pygame.display.set_caption("NSI project")
+if __name__ == "__main__":
+    # initialize pygame
+    pygame.init()
+    pygame.font.init()
 
-# ---- config ----
-SCREEN_WIDTH = 1920
-SCREEN_HEIGHT = 1080
+    # window title
+    pygame.display.set_caption("NSI project")
 
-map_size = 60
-tile_size = 80
-# -----------------
+    # ---- config ----
+    SCREEN_WIDTH = 1920
+    SCREEN_HEIGHT = 1080
 
-cinematic = False
+    map_size = 60
+    tile_size = 80
+    # -----------------
 
-remoteplayer = remote_player.RemotePlayer(SCREEN_WIDTH, SCREEN_HEIGHT)
-camera = c.Camera(SCREEN_WIDTH, SCREEN_HEIGHT, map_size, tile_size)
+    cinematic = False
 
-# connect socket
-udp_sock = udp_socket.connect("localhost", 12861)
+    remoteplayer = remote_player.RemotePlayer(SCREEN_WIDTH, SCREEN_HEIGHT)
+    camera = c.Camera(SCREEN_WIDTH, SCREEN_HEIGHT, map_size, tile_size)
 
-# data_lock = threading.Lock()
-thread_1 = threading.Thread(target=main_thread, args=(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, remoteplayer, map_size, tile_size, cinematic, camera, ))
-thread_2 = threading.Thread(target=socket_receive, args=(udp_sock, remoteplayer, ))
-thread_3 = threading.Thread(target=c.move_camera_to, args=((camera.width // 2 - tile_size, camera.height // 2 - tile_size), map_size, tile_size, cinematic, camera, ))
+    # connect socket
+    udp_sock = udp_socket.connect("localhost", 12861)
 
-thread_1.start()
-thread_2.start()
+    # data_lock = threading.Lock()
+    thread_1 = threading.Thread(target=main_thread, args=(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, remoteplayer, map_size, tile_size, cinematic, camera, ))
+    thread_2 = threading.Thread(target=socket_receive, args=(udp_sock, remoteplayer, ))
+    # thread_3 = threading.Thread(target=c.move_camera_to, args=((camera.width // 2 - tile_size, camera.height // 2 - tile_size), map_size, tile_size, cinematic, camera, ))
 
-time.sleep(1)
-thread_3.start()
+    thread_1.start()
+    thread_2.start()
+
+    time.sleep(1)
+    # thread_3.start()

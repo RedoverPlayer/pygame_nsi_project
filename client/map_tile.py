@@ -21,8 +21,8 @@ class MapTile(pygame.sprite.Sprite):
 
     def update(self, screen, coords):
         # add the tile to the screen if its coordinates are on the window
-        if ((self.coords[0] - coords[0]) + self.screen_width / 2) > -1 * self.tile_size and ((self.coords[0] - coords[0]) + self.screen_width / 2) < self.screen_width and (-1 * coords[1] + self.coords[1]) + self.screen_height / 2 > -1 * self.tile_size and (-1 * coords[1] + self.coords[1]) + self.screen_height / 2 < self.screen_height + self.tile_size:
-            screen.blit(self.surf, ((self.coords[0] - coords[0]) + self.screen_width / 2, (-1*coords[1] + self.coords[1]) + self.screen_height / 2))
-            return self
-        else:
-            return None
+        # if ((self.coords[0] - coords[0]) + self.screen_width / 2) > -1 * self.tile_size and ((self.coords[0] - coords[0]) + self.screen_width / 2) < self.screen_width and (-1 * coords[1] + self.coords[1]) + self.screen_height / 2 > -1 * self.tile_size and (-1 * coords[1] + self.coords[1]) + self.screen_height / 2 < self.screen_height + self.tile_size:
+        screen.blit(self.surf, ((self.coords[0] - coords[0]) + self.screen_width / 2, (-1*coords[1] + self.coords[1]) + self.screen_height / 2))
+        return self
+        # else:
+        #     return None
