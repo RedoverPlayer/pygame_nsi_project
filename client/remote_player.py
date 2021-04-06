@@ -11,6 +11,7 @@ class RemotePlayer(pygame.sprite.Sprite):
         self.coords = [0, 0]
 
         self.username = Username("Remote player")
+        self.hpbar = HPBar((int(self.size[0] * 1.5), self.size[1]))
 
         self.size = size
 
@@ -34,7 +35,22 @@ class RemotePlayer(pygame.sprite.Sprite):
             screen.blit(self.username.surf,
             (
                 self.screen_width/2 + self.coords[0] - coords[0] - self.size[0]/2 - (self.username.width - self.size[0]) // 2,
-                self.screen_height/2 + self.coords[1] - coords[1] - self.size[1]/2 - self.username.height * 2)
+                self.screen_height/2 + self.coords[1] - coords[1] - self.size[1]/2 - self.username.height * 2 - self.hpbar.height)
+            )
+            screen.blit(self.hpbar.surf1,
+            (
+                self.screen_width/2 + self.coords[0] - coords[0] - self.size[0]/2 - (self.hpbar.width - self.size[0]) // 2,
+                self.screen_height/2 + self.coords[1] - coords[1] - self.size[1]/2 - self.hpbar.height * 2)
+            )
+            screen.blit(self.hpbar.surf2,
+            (
+                self.screen_width/2 + self.coords[0] - coords[0] - self.size[0]/2 - (self.hpbar.width - self.size[0]) // 2 + 2,
+                self.screen_height/2 + self.coords[1] - coords[1] - self.size[1]/2 - self.hpbar.height * 2 + 2)
+            )
+            screen.blit(self.hpbar.pvcount,
+            (
+                self.screen_width/2 + self.coords[0] - coords[0] - self.size[0]/2 - (self.hpbar.pvcount.get_width() - self.size[0]) // 2 + 2,
+                self.screen_height/2 + self.coords[1] - coords[1] - self.size[1]/2 - self.hpbar.height * 2 + 2)
             )
 
 class Username:
@@ -43,3 +59,24 @@ class Username:
         self.surf = self.font.render(username, True, (250, 250, 250))
         self.width = self.surf.get_width()
         self.height = self.surf.get_height()
+
+class Username:
+    def __init__(self, username: str):
+        self.font = pygame.font.SysFont("freesansbold.ttf", 20)
+        self.surf = self.font.render(username, True, (250, 250, 250))
+        self.width = self.surf.get_width()
+        self.height = self.surf.get_height()
+
+class HPBar:
+    def __init__(self, size: tuple):
+        self.font = pygame.font.SysFont("freesansbold.ttf", 15)
+        self.pvcount = self.font.render("400", True, (250, 250, 250))
+
+        self.surf1 = pygame.Surface((size[0], 12))
+        self.surf1.fill((0, 0, 0))
+
+        self.surf2 = pygame.Surface((size[0] - 4, 8))
+        self.surf2.fill((0, 200, 0))
+
+        self.width = self.surf1.get_width()
+        self.height = self.surf1.get_height()

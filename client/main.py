@@ -15,14 +15,14 @@ from pygame.locals import (
     QUIT,
 )
 
-def main_thread(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, rplayer, map_size, tile_size, cinematic, camera):
+def main_thread(udp_sock, screen_width, screen_height, rplayer, map_size, tile_size, cinematic, camera):
     myfont = pygame.font.SysFont("freesansbold.ttf", 48)
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    screen = pygame.display.set_mode((screen_width, screen_height))
 
     screen.fill((50, 50, 50))
 
     # loading player
-    player = p.Player(SCREEN_WIDTH, SCREEN_HEIGHT, (60, 60))
+    player = p.Player(screen_width, screen_height, (60, 60))
 
     # loading map tiles
     with open("map1.json", "r") as f:
@@ -38,7 +38,7 @@ def main_thread(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, rplayer, map_size, tile_s
         x_coord = 0
         tmp = []
         for x in y:
-            tmp.append(map_tile.MapTile(SCREEN_WIDTH, SCREEN_HEIGHT, x_coord, y_coord, tile_size, x))
+            tmp.append(map_tile.MapTile(screen_width, screen_height, x_coord, y_coord, tile_size, x))
             x_coord += tile_size
         map_tiles.append(tmp)
         y_coord += tile_size
@@ -56,6 +56,8 @@ def main_thread(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, rplayer, map_size, tile_s
     fps = 0
     fps_text = "1"
     time1 = time.time()
+    mouse_pos = pygame.mouse.get_pos()
+    mouse_pos_1 = mouse_pos
 
     # main loop
     while running:
@@ -63,7 +65,7 @@ def main_thread(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, rplayer, map_size, tile_s
         tick_time = clock.tick(144)
         count += tick_time
         fps += 1
-        
+
         for event in pygame.event.get():
             if event.type == QUIT:
                 running = False
@@ -75,14 +77,14 @@ def main_thread(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, rplayer, map_size, tile_s
         screen.fill((50, 50, 50))
 
         # adding map tiles to the screen
-        screen_borders = (camera.coords[0] - SCREEN_WIDTH // 2, camera.coords[1] - SCREEN_HEIGHT // 2)
+        screen_borders = (camera.coords[0] - screen_width // 2, camera.coords[1] - screen_height // 2)
         tiles_in_viewport = []
-        for i in range(SCREEN_HEIGHT // tile_size + 2):
+        for i in range(screen_height // tile_size + 2):
             i2 = 0
             left_limit = screen_borders[0] // tile_size
             if (left_limit) < 0:
                 left_limit = 0
-            for tile in map_tiles[screen_borders[1] // 80 + i][left_limit:screen_borders[0] // tile_size + SCREEN_WIDTH // tile_size + 1]:
+            for tile in map_tiles[screen_borders[1] // 80 + i][left_limit:screen_borders[0] // tile_size + screen_width // tile_size + 1]:
                 tiles_in_viewport.append(tile)
                 i2 += 1
 
@@ -148,8 +150,8 @@ if __name__ == "__main__":
     pygame.display.set_caption("NSI project")
 
     # ---- config ----
-    SCREEN_WIDTH = 1920
-    SCREEN_HEIGHT = 1080
+    screen_width = 1920
+    screen_height = 1080
 
     map_size = 60
     tile_size = 80
@@ -157,14 +159,14 @@ if __name__ == "__main__":
 
     cinematic = False
 
-    remoteplayer = remote_player.RemotePlayer(SCREEN_WIDTH, SCREEN_HEIGHT)
-    camera = c.Camera(SCREEN_WIDTH, SCREEN_HEIGHT, map_size, tile_size)
+    remoteplayer = remote_player.RemotePlayer(screen_width, screen_height)
+    camera = c.Camera(screen_width, screen_height, map_size, tile_size)
 
     # connect socket
     udp_sock = udp_socket.connect("localhost", 12861)
 
     # data_lock = threading.Lock()
-    thread_1 = threading.Thread(target=main_thread, args=(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, remoteplayer, map_size, tile_size, cinematic, camera, ))
+    thread_1 = threading.Thread(target=main_thread, args=(udp_sock, screen_width, screen_height, remoteplayer, map_size, tile_size, cinematic, camera, ))
     thread_2 = threading.Thread(target=socket_receive, args=(udp_sock, remoteplayer, ))
     # thread_3 = threading.Thread(target=c.move_camera_to, args=((camera.width // 2 - tile_size, camera.height // 2 - tile_size), map_size, tile_size, cinematic, camera, ))
 
