@@ -32,9 +32,6 @@ def main_thread(udp_sock, screen_width, screen_height, rplayer, cinematic, camer
     # variables for on screen debug
     debug = d.Debug(player)
 
-    # thread_tardis = threading.Thread(target=t.land, args=[tardis])
-    # thread_tardis.start()
-
     # main loop
     while running:
         tick_time = clock.tick(fps)
