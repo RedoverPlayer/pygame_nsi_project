@@ -4,17 +4,17 @@ import udp_socket
 
 def tcp_socket_thread(users):
     while True:
-        # try:
-        tcp_socket.run('', 12860, users)
-        # except Exception as exception:
-        #     print(exception)
+        try:
+            tcp_socket.run('', 12860, users)
+        except Exception as exception:
+            print(exception)
 
 def udp_socket_thread(users):
     while True:
-        # try:
-        udp_socket.run('', 12861, users)
-        # except Exception as exception:
-        #     print(exception)
+        try:  
+            udp_socket.run('', 12861, users)
+        except Exception as exception:
+            print(exception)
 
 if __name__ == "__main__":
     users = {}
