@@ -1,4 +1,5 @@
 import pygame
+import abilities
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, screen_width: int, screen_height: int, size: tuple=(60, 60)):
@@ -87,6 +88,9 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.coords[1] -= self.coords[1] - (map_size * tile_size - self.size[1] // 2)
         
+        if pressed_keys[pygame.K_SPACE]:
+            proj1= abilities.Projectile(self.screen_width, self.screen_height, self.coords)
+
         screen.blit(pygame.transform.rotate(self.surf, self.angle), (self.screen_width/2 + self.coords[0] - camera.coords[0] - self.size[0]/2, self.screen_height/2 + self.coords[1] - camera.coords[1] - self.size[1]/2))
         screen.blit(self.username.surf,
         (
