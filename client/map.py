@@ -54,12 +54,17 @@ class Map:
         # adding map tiles to the screen
         screen_borders = (coords[0] - self.screen_width // 2, coords[1] - self.screen_height // 2)
         tiles_in_viewport = []
+
         for i in range(self.screen_height // self.tile_size + 2):
             i2 = 0
             left_limit = screen_borders[0] // self.tile_size
+            y_tile = screen_borders[1] // 80 + i
+
             if (left_limit) < 0:
                 left_limit = 0
-            for tile in self.tiles[screen_borders[1] // 80 + i][left_limit:screen_borders[0] // self.tile_size + self.screen_width // self.tile_size + 1]:
+            if y_tile > 59:
+                y_tile = 59
+            for tile in self.tiles[y_tile][left_limit:screen_borders[0] // self.tile_size + self.screen_width // self.tile_size + 1]:
                 tiles_in_viewport.append(tile)
                 i2 += 1
 

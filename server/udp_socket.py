@@ -1,5 +1,6 @@
 import socket
 import json
+import traceback
 
 import coords_handler
 
@@ -14,15 +15,27 @@ def run(host, port, users):
             data, addr = udp_socket.recvfrom(1024)
             data = json.loads(data.decode())
 
-            if data["type"] == "player_coords" and data["id"] == [user for user in users.values() if user["auth_token"] == data["auth_token"]][0]["id"]:
-                if addr not in connected_clients:
-                    connected_clients.append(addr)
-                else:
+            for elem in connected_clients:
+                if elem["auth_token"] not in [elem["auth_token"] for elem in users.values()]:
+                    removeIfInConnectedClients(elem["auth_token"], elem["addr"], connected_clients)
+
+            if data["auth_token"] in [elem["auth_token"] for elem in users.values()]:
+                if addIfNotInConnectedClients(data, addr, connected_clients):
                     coords_handler.coords_handler(udp_socket, data, connected_clients, addr, users)
+            elif data["type"] == "address_delivery":
+                addIfNotInConnectedClients(data, addr, connected_clients)
             else:
-                if addr in connected_clients:
-                    connected_clients.remove(addr)
+                removeIfInConnectedClients(data, addr, connected_clients)
         except Exception as exception:
-            print(exception)
-            if addr in connected_clients:
-                connected_clients.remove(addr)
+            print(traceback.format_exc())
+
+def addIfNotInConnectedClients(data, addr, connected_clients):
+    if {"addr": addr, "auth_token": data["auth_token"]} not in connected_clients:
+        connected_clients.append({"addr": addr, "auth_token": data["auth_token"]})
+        return False
+    else:
+        return True
+
+def removeIfInConnectedClients(auth_token, addr, connected_clients):
+    if {"addr": addr, "auth_token": auth_token} in connected_clients:
+        connected_clients.remove({"addr": addr, "auth_token": auth_token})

@@ -3,7 +3,7 @@ import pygame
 import json
 import time
 import threading
-import multiprocessing
+import traceback
 
 import player as p
 import map as m
@@ -12,6 +12,7 @@ import tcp_socket
 import udp_socket
 import camera as c
 import debug as d
+import rich_presence
 
 from pygame.locals import (
     QUIT,
@@ -108,7 +109,7 @@ if __name__ == "__main__":
 
     # connect socket
     id, auth_token, tcp_sock = tcp_socket.connect("localhost", 12860)
-    udp_sock = udp_socket.connect("localhost", 12861)
+    udp_sock = udp_socket.connect("localhost", 12861, auth_token)
 
     thread_1 = threading.Thread(target=main_thread, args=(udp_sock, screen_width, screen_height, cinematic, camera, map, fps, id, auth_token, rplayers, ))
     thread_2 = threading.Thread(target=tcp_socket.run, args=(tcp_sock, id, auth_token, rplayers, screen_width, screen_height))
@@ -119,3 +120,10 @@ if __name__ == "__main__":
     thread_2.start()
     thread_3.start()
     # thread_4.start()
+
+    try:
+        rpc = rich_presence.RichPresence(825326652124430366)
+        rpc.connect()
+        rpc.update("En développement", "Ouais le nom du jeu est pas ouf mais en vrai ça passe")
+    except:
+        pass

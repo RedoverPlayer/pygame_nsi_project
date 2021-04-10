@@ -24,7 +24,7 @@ class Player(pygame.sprite.Sprite):
         self.angle = angle
 
     def update(self, pressed_keys, rendered_tiles, map_size, tile_size, tick_time, screen, camera, speed=2):
-        movement_speed = 2 * tick_time // 8
+        movement_speed = tick_time // 4
 
         left = self.coords[0] - self.size[0] // 2
         right = self.coords[0] + self.size[0] // 2

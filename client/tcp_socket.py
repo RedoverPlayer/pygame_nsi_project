@@ -1,5 +1,6 @@
 import socket
 import json
+import traceback
 import remote_player
 
 def connect(hote, port):
@@ -16,11 +17,15 @@ def connect(hote, port):
 def run(connection_with_server, id, auth_token, rplayers, screen_width, screen_height):
     while True:
         try:
-            data = json.loads(connection_with_server.recv(1024).decode())
+            data = connection_with_server.recv(1024).decode()
+            data = json.loads(data)
+
             if data["type"] == "player_connection":
                 rplayers.append(remote_player.RemotePlayer(screen_width, screen_height, data["id"], data["username"]))
+            elif data["type"] == "multiple_players_connection":
+                for player in data["players"]:
+                    rplayers.append(remote_player.RemotePlayer(screen_width, screen_height, player["id"], player["username"]))
             elif data["type"] ==  "player_disconnection":
-                rplayers.remove([rplayer for rplayer in rplayers if rplayer["id"] == data["id"]][0])
-
+                rplayers.remove([rplayer for rplayer in rplayers if rplayer.id == data["id"]][0])
         except:
             pass

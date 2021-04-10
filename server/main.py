@@ -1,20 +1,21 @@
 import threading
 import tcp_socket
 import udp_socket
+import traceback
 
 def tcp_socket_thread(users):
     while True:
         try:
             tcp_socket.run('', 12860, users)
         except Exception as exception:
-            print(exception)
+            print(traceback.format_exc())
 
 def udp_socket_thread(users):
     while True:
         try:  
             udp_socket.run('', 12861, users)
         except Exception as exception:
-            print(exception)
+            print(traceback.format_exc())
 
 if __name__ == "__main__":
     users = {}
