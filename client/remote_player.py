@@ -1,16 +1,18 @@
 import pygame
 
 class RemotePlayer(pygame.sprite.Sprite):
-    def __init__(self, screen_width, screen_height, size=(60, 60)):
+    def __init__(self, screen_width, screen_height, id, username, size=(60, 60)):
         super(RemotePlayer, self).__init__()
         self.surf = pygame.Surface(size)
         self.surf.fill((255, 255, 255))
         self.rect = self.surf.get_rect()
         self.size = size
 
+        self.id = id
+
         self.coords = [0, 0]
 
-        self.username = Username("Remote player")
+        self.username = Username(username)
         self.hpbar = HPBar((int(self.size[0] * 1.5), self.size[1]))
 
         self.size = size
