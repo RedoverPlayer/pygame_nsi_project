@@ -6,8 +6,9 @@ class MapTile(pygame.sprite.Sprite):
     def __init__(self, screen_width, screen_height, x, y, tile_size, type="wall"):
         super(MapTile, self).__init__()
         self.surf = pygame.Surface((tile_size, tile_size))
+        
         self.type = type
-        self.surf.fill((255, 115, 0) if self.type == "wall" else (0, 140, 255) if self.type == "water" else (255, 255, 0) if self.type == "bush" else (65, 191, 98) if self.type == "cactus" else (204, 121, 63) if self.type == "barrel" else (234, 163, 94) if self.type == "box" else (0, 81, 0))
+        self.surf.fill((255, 115, 0) if self.type == "wall" else (0, 140, 255) if self.type == "water" else (255, 255, 0) if self.type == "bush" else (234, 163, 94) if self.type == "crate" else (0, 81, 0))
         self.rect = self.surf.get_rect()
         self.screen_width = screen_width
         self.screen_height = screen_height
@@ -20,8 +21,34 @@ class MapTile(pygame.sprite.Sprite):
         self.top = y
         self.bottom = y + tile_size
 
-    def update(self, screen, coords):
-        screen.blit(self.surf, ((self.coords[0] - coords[0]) + self.screen_width / 2, (-1*coords[1] + self.coords[1]) + self.screen_height / 2))
+        if self.type == "wall":
+            self.surf2 = pygame.image.load("img/wall.png")
+            self.surf2 = pygame.transform.scale(self.surf2, (tile_size, tile_size + tile_size // 2))
+        elif self.type == "crate":
+            self.surf2 = pygame.image.load("img/crate.png")
+            self.surf2 = pygame.transform.scale(self.surf2, (tile_size, tile_size + tile_size // 2))
+        elif self.type == "barrel":
+            self.surf2 = pygame.image.load("img/barrel.png")
+            self.surf2 = pygame.transform.scale(self.surf2, (tile_size, tile_size + tile_size // 2))
+            self.surf2.set_colorkey((255, 255, 255))
+        elif self.type == "cactus":
+            self.surf2 = pygame.image.load("img/cactus.png")
+            self.surf2 = pygame.transform.scale(self.surf2, (tile_size, tile_size + tile_size // 2))
+            self.surf2.set_colorkey((255, 255, 255))
+            
+            self.left += self.tile_size // 3
+            self.right -= self.tile_size // 3
+            self.top += self.tile_size // 3
+            self.bottom -= self.tile_size // 3
+
+    def update(self, screen, coords, no_render=False):
+        if self.type in ("wall", "crate", "cactus", "barrel"):
+            if not no_render:
+                screen.blit(self.surf2, ((self.coords[0] - coords[0]) + self.screen_width / 2, (-1*coords[1] + self.coords[1]) + self.screen_height / 2 - self.tile_size // 2))
+            else:
+                screen.blit(self.surf, ((self.coords[0] - coords[0]) + self.screen_width / 2, (-1*coords[1] + self.coords[1]) + self.screen_height / 2))
+        else:
+            screen.blit(self.surf, ((self.coords[0] - coords[0]) + self.screen_width / 2, (-1*coords[1] + self.coords[1]) + self.screen_height / 2))
         return self
 
 class Map:
@@ -50,10 +77,11 @@ class Map:
         self.screen_width = screen_width
         self.screen_height = screen_height
 
-    def update(self, coords, screen):
+    def update(self, coords, screen, player):
         # adding map tiles to the screen
         screen_borders = (coords[0] - self.screen_width // 2, coords[1] - self.screen_height // 2)
         tiles_in_viewport = []
+        foreground_tiles = []
 
         for i in range(self.screen_height // self.tile_size + 2):
             i2 = 0
@@ -64,8 +92,13 @@ class Map:
                 left_limit = 0
             if y_tile > 59:
                 y_tile = 59
+
             for tile in self.tiles[y_tile][left_limit:screen_borders[0] // self.tile_size + self.screen_width // self.tile_size + 1]:
-                tiles_in_viewport.append(tile)
+                if tile.type in ("wall", "crate", "cactus", "barrel"):
+                    foreground_tiles.append(tile)
+                    tiles_in_viewport.append(tile)
+                else:
+                    tiles_in_viewport.append(tile)
                 i2 += 1
 
-        return [tile.update(screen, coords) for tile in tiles_in_viewport]
+        return [tile.update(screen, coords, True) for tile in tiles_in_viewport], foreground_tiles

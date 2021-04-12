@@ -18,9 +18,8 @@ from pygame.locals import (
     QUIT,
 )
 
-def main_thread(udp_sock, screen_width, screen_height, cinematic, camera, map, fps, id, auth_token, rplayers):
+def main_thread(screen, udp_sock, screen_width, screen_height, cinematic, camera, map, fps, id, auth_token, rplayers):
     myfont = pygame.font.SysFont("freesansbold.ttf", 48)
-    screen = pygame.display.set_mode((screen_width, screen_height))
 
     screen.fill((50, 50, 50))
 
@@ -50,11 +49,17 @@ def main_thread(udp_sock, screen_width, screen_height, cinematic, camera, map, f
         screen.fill((50, 50, 50))
 
         # update elements
-        tiles_rendered = map.update(camera.coords, screen)
+        tiles_rendered, foreground_tiles = map.update(camera.coords, screen, player)
         # rplayer.update(screen, camera.coords)
         for rplayer in rplayers:
             rplayer.update(screen, camera.coords)
+
         player.update(pressed_keys, tiles_rendered, map.map_size, map.tile_size, tick_time, screen, camera, 2)
+
+        for tile in foreground_tiles:
+            tile.update(screen, camera.coords)
+
+        player.renderInfoBar(screen, camera)
 
         # ensure camera does not go to the border
         if not cinematic:
@@ -102,6 +107,8 @@ if __name__ == "__main__":
 
     cinematic = False
 
+    screen = pygame.display.set_mode((screen_width, screen_height))
+
     map = m.Map("map1.json", tile_size, 60, screen_width, screen_height)
     camera = c.Camera(screen_width, screen_height, map.map_size, map.tile_size)
 
@@ -111,12 +118,12 @@ if __name__ == "__main__":
     id, auth_token, tcp_sock = tcp_socket.connect("localhost", 12860)
     udp_sock = udp_socket.connect("localhost", 12861, auth_token)
 
-    thread_1 = threading.Thread(target=main_thread, args=(udp_sock, screen_width, screen_height, cinematic, camera, map, fps, id, auth_token, rplayers, ))
+    # thread_1 = threading.Thread(target=main_thread, args=(screen, udp_sock, screen_width, screen_height, cinematic, camera, map, fps, id, auth_token, rplayers, ))
     thread_2 = threading.Thread(target=tcp_socket.run, args=(tcp_sock, id, auth_token, rplayers, screen_width, screen_height))
     thread_3 = threading.Thread(target=socket_receive, args=(udp_sock, rplayers, ))
     # thread_4 = threading.Thread(target=c.move_camera_to, args=((camera.width // 2 - tile_size, camera.height // 2 - tile_size), map_size, tile_size, cinematic, camera, ))
 
-    thread_1.start()
+    # thread_1.start()
     thread_2.start()
     thread_3.start()
     # thread_4.start()
@@ -127,3 +134,5 @@ if __name__ == "__main__":
         rpc.update("En développement", "Ouais le nom du jeu est pas ouf mais en vrai ça passe")
     except:
         pass
+
+    main_thread(screen, udp_sock, screen_width, screen_height, cinematic, camera, map, fps, id, auth_token, rplayers)
