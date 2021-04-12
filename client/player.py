@@ -1,4 +1,5 @@
 import pygame
+import abilities
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, screen_width: int, screen_height: int, size: tuple=(60, 60)):
@@ -36,7 +37,7 @@ class Player(pygame.sprite.Sprite):
                 moved = False
                 for tile in rendered_tiles:
                     # check if the left side of the player collides with the right side of the tile
-                    if (tile.type == "wall" or tile.type == "cactus" or tile.type == "barrel" or tile.type == "box") and (bottom > tile.top) and (top < tile.bottom) and (left >= tile.right) and (left - movement_speed < tile.right):
+                    if (tile.type == "wall" or tile.type == "cactus" or tile.type == "barrel" or tile.type == "crate") and (bottom > tile.top) and (top < tile.bottom) and (left >= tile.right) and (left - movement_speed < tile.right):
                         self.coords[0] += tile.right - left
                         moved = True
                         break
@@ -50,7 +51,7 @@ class Player(pygame.sprite.Sprite):
                 moved = False
                 for tile in rendered_tiles:
                     # check if the right side of the player collides with the left side of the tile
-                    if (tile.type == "wall" or tile.type == "cactus" or tile.type == "barrel" or tile.type == "box") and (bottom > tile.top) and (top < tile.bottom) and (right <= tile.left) and (right + movement_speed > tile.left):
+                    if (tile.type == "wall" or tile.type == "cactus" or tile.type == "barrel" or tile.type == "crate") and (bottom > tile.top) and (top < tile.bottom) and (right <= tile.left) and (right + movement_speed > tile.left):
                         self.coords[0] += tile.left - right
                         moved = True
                         break
@@ -64,7 +65,7 @@ class Player(pygame.sprite.Sprite):
                 moved = False
                 for tile in rendered_tiles:
                     # check if the top of the player collides with the bottom of the tile
-                    if (tile.type == "wall" or tile.type == "cactus" or tile.type == "barrel" or tile.type == "box") and (right > tile.left) and (left < tile.right) and (top >= tile.bottom) and (top - movement_speed < tile.bottom):
+                    if (tile.type == "wall" or tile.type == "cactus" or tile.type == "barrel" or tile.type == "crate") and (right > tile.left) and (left < tile.right) and (top >= tile.bottom) and (top - movement_speed < tile.bottom):
                         self.coords[1] += tile.bottom - top
                         moved = True
                         break
@@ -78,7 +79,7 @@ class Player(pygame.sprite.Sprite):
                 moved = False
                 for tile in rendered_tiles:
                     # check if the bottom of the player collides with the top of the tile
-                    if (tile.type == "wall" or tile.type == "cactus" or tile.type == "barrel" or tile.type == "box") and (right > tile.left) and (left < tile.right) and (bottom <= tile.top) and (bottom + movement_speed > tile.top):
+                    if (tile.type == "wall" or tile.type == "cactus" or tile.type == "barrel" or tile.type == "crate") and (right > tile.left) and (left < tile.right) and (bottom <= tile.top) and (bottom + movement_speed > tile.top):
                         self.coords[1] += tile.top - bottom
                         moved = True
                         break
@@ -87,7 +88,12 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.coords[1] -= self.coords[1] - (map_size * tile_size - self.size[1] // 2)
         
+        if pressed_keys[pygame.K_SPACE]:
+            proj1= abilities.Projectile(self.screen_width, self.screen_height, self.coords)
+
         screen.blit(pygame.transform.rotate(self.surf, self.angle), (self.screen_width/2 + self.coords[0] - camera.coords[0] - self.size[0]/2, self.screen_height/2 + self.coords[1] - camera.coords[1] - self.size[1]/2))
+
+    def renderInfoBar(self, screen, camera):
         screen.blit(self.username.surf,
         (
             self.screen_width/2 + self.coords[0] - camera.coords[0] - self.size[0]/2 - (self.username.width - self.size[0]) // 2,
