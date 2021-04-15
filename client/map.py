@@ -79,6 +79,7 @@ class Map:
 
     def update(self, coords, screen, player):
         # adding map tiles to the screen
+        coords[0], coords[1] = int(coords[0]), int(coords[1])
         screen_borders = (coords[0] - self.screen_width // 2, coords[1] - self.screen_height // 2)
         tiles_in_viewport = []
         foreground_tiles = []

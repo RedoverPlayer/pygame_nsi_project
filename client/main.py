@@ -1,13 +1,10 @@
-from socket import socket
 import pygame
 import json
 import time
 import threading
-import traceback
 
 import player as p
 import map as m
-import remote_player
 import tcp_socket
 import udp_socket
 import camera as c
@@ -24,7 +21,7 @@ def main_thread(screen, udp_sock, screen_width, screen_height, cinematic, camera
     screen.fill((50, 50, 50))
 
     # loading instances
-    player = p.Player(screen_width, screen_height, (60, 60))
+    player = p.Player(screen_width, screen_height, "Test player", (60, 60))
 
     running = True
 
@@ -50,16 +47,19 @@ def main_thread(screen, udp_sock, screen_width, screen_height, cinematic, camera
 
         # update elements
         tiles_rendered, foreground_tiles = map.update(camera.coords, screen, player)
-        # rplayer.update(screen, camera.coords)
+
         for rplayer in rplayers:
             rplayer.update(screen, camera.coords)
 
-        player.update(pressed_keys, tiles_rendered, map.map_size, map.tile_size, tick_time, screen, camera, 2)
+        player.update(pressed_keys, tiles_rendered, map.map_size, map.tile_size, tick_time, screen, camera)
 
         for tile in foreground_tiles:
             tile.update(screen, camera.coords)
+        
+        for rplayer in rplayers:
+            rplayer.renderInfoBar(screen, camera.coords)
 
-        player.renderInfoBar(screen, camera)
+        player.renderInfoBar(screen, camera.coords)
 
         # ensure camera does not go to the border
         if not cinematic:
@@ -75,18 +75,6 @@ def main_thread(screen, udp_sock, screen_width, screen_height, cinematic, camera
 
         # render elements to the screen
         pygame.display.flip()
-
-def socket_receive(udp_sock, rplayers):
-    while True:
-        # try:
-        data, addr = udp_sock.recvfrom(1024)
-        data = json.loads(data.decode())
-        if data["type"] == "remote_coords":
-            for rplayer in rplayers:
-                if rplayer.id == data["id"]:
-                    rplayer.coords = data["coords"]
-        # except:
-        #     pass
 
 if __name__ == "__main__":
     # initialize pygame
@@ -120,7 +108,7 @@ if __name__ == "__main__":
 
     # thread_1 = threading.Thread(target=main_thread, args=(screen, udp_sock, screen_width, screen_height, cinematic, camera, map, fps, id, auth_token, rplayers, ))
     thread_2 = threading.Thread(target=tcp_socket.run, args=(tcp_sock, id, auth_token, rplayers, screen_width, screen_height))
-    thread_3 = threading.Thread(target=socket_receive, args=(udp_sock, rplayers, ))
+    thread_3 = threading.Thread(target=udp_socket.run, args=(udp_sock, rplayers, ))
     # thread_4 = threading.Thread(target=c.move_camera_to, args=((camera.width // 2 - tile_size, camera.height // 2 - tile_size), map_size, tile_size, cinematic, camera, ))
 
     # thread_1.start()

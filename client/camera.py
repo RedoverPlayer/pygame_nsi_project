@@ -12,16 +12,16 @@ class Camera:
         y = coords[1] >= self.height // 2 - tile_size and coords[1] <= map_size * tile_size - self.height // 2 + tile_size
 
         if x and not y:
-            self.coords = (coords[0], self.coords[1])
+            self.coords = [coords[0], self.coords[1]]
         elif y and not x:
-            self.coords = (self.coords[0], coords[1])
+            self.coords = [self.coords[0], coords[1]]
         elif x and y:
-            self.coords = (coords[0], coords[1])
+            self.coords = [coords[0], coords[1]]
         else:
-            self.coords = (self.coords[0], self.coords[1])
+            self.coords = [self.coords[0], self.coords[1]]
 
     def coords_update(self, coords):
-        self.coords = coords
+        self.coords[0], self.coords[1] = int(coords[0]), int(coords[1])
 
 def move_camera_to(target_coords, map_size, tile_size, cinematic, camera):
     cinematic = True
