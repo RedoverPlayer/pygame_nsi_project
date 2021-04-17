@@ -1,116 +1,117 @@
-from socket import socket
 import pygame
+import pygame_gui
 import json
 import time
 import threading
 
 import player as p
-import map_tile
-import remote_player
+import map as m
+import tcp_socket
 import udp_socket
+import camera as c
+import debug as d
+import rich_presence
+import game
+import menus
 
 from pygame.locals import (
     QUIT,
 )
 
-def main_thread(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, rplayer):
-    # initialize pygame
-    pygame.init()
-    pygame.font.init()
-
-    # window title
-    pygame.display.set_caption("NSI project")
-
+def main_thread(screen, udp_sock, screen_width, screen_height, cinematic, camera, map, fps, id, auth_token, rplayers, server_ip, ui_status):
     myfont = pygame.font.SysFont("freesansbold.ttf", 48)
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-
     screen.fill((50, 50, 50))
 
-    # loading player
-    player = p.Player(SCREEN_WIDTH, SCREEN_HEIGHT, (60, 60))
-
-    # loading map tiles
-    with open("map1.json", "r") as f:
-        map = json.loads(f.read())
-
-    map_size = 60
-    tile_size = 100
-    map_tiles = []
-
-    # generating map tiles
-    x_coord = 0
-    y_coord = 0
-
-    for y in map:
-        x_coord = 0
-        for x in y:
-            map_tiles.append(map_tile.MapTile(SCREEN_WIDTH, SCREEN_HEIGHT, x_coord, y_coord, tile_size, x))
-            x_coord += tile_size
-        y_coord += tile_size
-
+    # loading instances
+    player = p.Player(screen_width, screen_height, "Test player", (60, 60))
     running = True
-
     clock = pygame.time.Clock()
+
+    main_menu = menus.MainMenu(screen_width, screen_height)
     
+    # variables for on screen debug
+    debug = d.Debug(player)
+
     # main loop
     while running:
-        # The game runs at max 144 FPS (a little less due to the time of computation of each frame)
-        tick_time = clock.tick(144)
+        tick_time = clock.tick(fps)
+        debug.fps += 1
+
+        screen.fill((50, 50, 50))
 
         for event in pygame.event.get():
             if event.type == QUIT:
                 running = False
 
-        # changing player coords when pressing keys
+        # ui manager
+
         pressed_keys = pygame.key.get_pressed()
-
-        # background color
-        screen.fill((50, 50, 50))
-
-        # adding map tiles to the screen
-        tiles_rendered = [elem for elem in [map_tile.update(screen, player.coords) for map_tile in map_tiles] if elem != None]
-
-        rplayer.update(screen, player.coords)
-        player.update(pressed_keys, tiles_rendered, map_size, tile_size, tick_time, 2)
-
-        # test for remote player
         
-        # add the player to the screen
-        screen.blit(player.surf, (SCREEN_WIDTH/2 - player.size[0]/2, SCREEN_HEIGHT/2 - player.size[1]/2))
-        udp_socket.sendCoords(udp_sock, ("localhost", 12861), player.coords)
+        if ui_status[0] == "game":
+            # update elements
+            tiles_rendered = game.update(camera, map, player, rplayers, pressed_keys, screen, cinematic, tick_time, udp_sock, server_ip, id, auth_token)
 
-        # debug
-        playercoords = myfont.render(str(player.coords), True, (250, 250, 250))
-        screen.blit(playercoords, (5, 5))
-        
-        tiles_number = myfont.render("Rendered tiles : " + str(len(tiles_rendered)), True, (250, 250, 250))
-        screen.blit(tiles_number, (5, 50))
+            # debug
+            if (time.time() - debug.time1) >= 1:
+                debug.tick(player)
+            debug.update(player, screen, myfont, tiles_rendered)
+        elif ui_status[0] == "main_menu":
+            main_menu.run(screen, fps, ui_status)
 
         # render elements to the screen
         pygame.display.flip()
 
-def socket_receive(udp_sock, rplayer):
-    while True:
-        # try:
-        data, addr = udp_sock.recvfrom(1024)
-        data = json.loads(data.decode())
-        if data["type"] == "remote_coords":
-            rplayer.coords = data["coords"]
-        # except:
-        #     pass
+if __name__ == "__main__":
+    # ---- config ----
+    screen_width = 1920
+    screen_height = 1080
 
-SCREEN_WIDTH = 1920
-SCREEN_HEIGHT = 1080
+    fps = 144
+    server_ip = "localhost"
+    # -----------------
 
-remoteplayer = remote_player.RemotePlayer(SCREEN_WIDTH, SCREEN_HEIGHT)
+    # initialize pygame
+    pygame.init()
+    pygame.font.init()
+    pygame.mixer.init()
 
-# connect socket
-udp_sock = udp_socket.connect("localhost", 12861)
+    # instantiation of important variables
+    pygame.display.set_caption("NSI project")
+    menus.updateThemeJson(screen_width, screen_height)
+    
+    cinematic = [False]
+    screen = pygame.display.set_mode((screen_width, screen_height))
 
-# data_lock = threading.Lock()
+    map = m.Map("map1.json", 80, 60, screen_width, screen_height)
+    camera = c.Camera(screen_width, screen_height, map.map_size, map.tile_size)
 
-thread_1 = threading.Thread(target=main_thread, args=(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, remoteplayer, ))
-thread_2 = threading.Thread(target=socket_receive, args=(udp_sock, remoteplayer, ))
+    rplayers = []
+    ui_status = ["connecting"]
 
-thread_1.start()
-thread_2.start()
+    # connect socket
+    data = []
+    thread_1 = threading.Thread(target=tcp_socket.connect, args=(server_ip, 12860, data, ui_status, ))
+    thread_1.start()
+
+    connection_menu = menus.ConnectionMenu(screen_width, screen_height)
+    connection_menu.run(screen, fps, ui_status)
+
+    id, auth_token, tcp_sock = data
+
+    udp_sock = udp_socket.connect(server_ip, 12861, auth_token)
+    ui_status = ["main_menu"]
+
+    thread_2 = threading.Thread(target=tcp_socket.run, args=(tcp_sock, id, auth_token, rplayers, screen_width, screen_height, ))
+    thread_3 = threading.Thread(target=udp_socket.run, args=(udp_sock, rplayers, ))
+
+    thread_2.start()
+    thread_3.start()
+
+    try:
+        rpc = rich_presence.RichPresence(825326652124430366)
+        rpc.connect()
+        rpc.update("En développement", "Ouais le nom du jeu est pas ouf mais en vrai ça passe")
+    except:
+        pass
+
+    main_thread(screen, udp_sock, screen_width, screen_height, cinematic, camera, map, fps, id, auth_token, rplayers, server_ip, ui_status)

@@ -31,5 +31,3 @@ class RichPresence:
         except Exception as exception:
             print(exception)
             self.connected = False
-
-# updatePresence(party_size=[1,2], party_id="testid", join="testjoin")
