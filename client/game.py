@@ -17,7 +17,7 @@ def update(camera, map, player, rplayers, pressed_keys, screen, cinematic, tick_
     player.renderInfoBar(screen, camera.coords)
 
     # ensure camera does not go to the border
-    if not cinematic:
+    if not cinematic[0]:
         camera.update(player.coords, map.map_size, map.tile_size)
 
     # add the player to the screens

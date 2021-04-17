@@ -14,13 +14,23 @@
         }
     },
     "button": {
+        "font": {
+            "name": "press_start",
+            "size": "32",
+            "bold": "0",
+            "italic": "0",
+            "regular_path": "./fonts/press_start/PressStart2P-Regular.ttf"
+        },
         "colours": {
-            "normal_bg": "#efc408",
+            "normal_bg": "#c6a306",
             "normal_border": "#00000000",
             "normal_text": "#ffffff",
-            "hovered_bg": "#fcd804",
+            "hovered_bg": "#dfb707",
             "hovered_border": "#00000000",
-            "hovered_text": "#ffffff"
+            "hovered_text": "#ffffff",
+            "active_bg": "#f7cb08",
+            "active_border": "#00000000",
+            "active_text": "#ffffff"
         },
         "misc": {
             "shadow_width": "8",
@@ -55,7 +65,7 @@
         "font": {
             "name": "opensans",
             "size": "40",
-            "bold": "0",
+            "bold": "1",
             "italic": "0",
             "regular_path": "./fonts/open_sans/OpenSans-Regular.ttf"
         },

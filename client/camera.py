@@ -24,7 +24,7 @@ class Camera:
         self.coords[0], self.coords[1] = int(coords[0]), int(coords[1])
 
 def move_camera_to(target_coords, map_size, tile_size, cinematic, camera):
-    cinematic = True
+    cinematic[0] = True
     start_speed = ((target_coords[0] - camera.coords[0]) / 2000, (target_coords[1] - camera.coords[1]) / 2000)
     initial_coords = camera.coords
     speed = (0, 0)
@@ -61,4 +61,4 @@ def move_camera_to(target_coords, map_size, tile_size, cinematic, camera):
             else:
                 break            
         time.sleep(0.005)
-    cinematic = False
+    cinematic[0] = False
