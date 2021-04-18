@@ -6,17 +6,26 @@ import traceback
 import event_handler
 import login
 
-def removeClient(client, tcp_clients, users):
+def removeClient(client, tcp_clients, users, games, game_search):
     tcp_clients.remove(client)
 
+    for game in games:
+        if client in game.clients:
+            game.removeClient(client, users)
+
+    for gamemode in game_search:
+        for c in game_search[gamemode]:
+            if c == client:
+                game_search[gamemode].remove(client)
+                for c2 in game_search[gamemode]:
+                    c2.send(('{"type": "search_update", "player_count": "' + str(len(game_search[gamemode])) + '"}$').encode())
+
     if client in users:
-        for other_client in [elem for elem in tcp_clients if elem != client]:
-            other_client.send(('{"type": "player_disconnection", "id": "' + users[client]["id"] + '"}').encode())
         del users[client]
 
     client.close()
 
-def run(hote, port, users):
+def run(hote, port, users, game_search, games):
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print("Connection...")
     server.bind((hote, port))
@@ -49,26 +58,26 @@ def run(hote, port, users):
                             data = json.loads(data)
                             if type(data["type"]) != str:
                                 print("data type not string")
-                                removeClient(client, tcp_clients, users)
+                                removeClient(client, tcp_clients, users, games, game_search)
 
                             if data["type"] != "login" and not client in users:
                                 print("Invalid request")
-                                removeClient(client, tcp_clients, users)
+                                removeClient(client, tcp_clients, users, games, game_search)
 
-                            if data["type"] == "event":
-                                event_handler.event_received(data, client, users)
+                            if data["type"] != "login":
+                                event_handler.event_received(data, client, users, game_search, games)
                             elif data["type"] == "login":
                                 login.loginRequest(client, tcp_clients, users)
 
                     except Exception as exception:
                         print(traceback.format_exc())
-                        removeClient(client, tcp_clients, users)
+                        removeClient(client, tcp_clients, users, games, game_search)
 
                         continue
 
                 except socket.error:
                     print(traceback.format_exc())
-                    removeClient(client, tcp_clients, users)
+                    removeClient(client, tcp_clients, users, games, game_search)
                 except Exception as exception:
                     print(traceback.format_exc())
 

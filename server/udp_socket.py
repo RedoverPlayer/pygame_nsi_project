@@ -4,7 +4,7 @@ import traceback
 
 import coords_handler
 
-def run(host, port, users):
+def run(host, port, users, games):
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     udp_socket.bind((host, port))
 
@@ -21,7 +21,7 @@ def run(host, port, users):
 
             if data["auth_token"] in [elem["auth_token"] for elem in users.values()]:
                 if addIfNotInConnectedClients(data, addr, connected_clients):
-                    coords_handler.coords_handler(udp_socket, data, connected_clients, addr, users)
+                    coords_handler.coords_handler(udp_socket, data, connected_clients, addr, users, games)
             elif data["type"] == "address_delivery":
                 addIfNotInConnectedClients(data, addr, connected_clients)
             else:
