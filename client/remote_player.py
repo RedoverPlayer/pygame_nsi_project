@@ -1,31 +1,10 @@
-import pygame
+from character import Character
 
-class RemotePlayer(pygame.sprite.Sprite):
-    def __init__(self, screen_width, screen_height, size=(60, 60)):
-        super(RemotePlayer, self).__init__()
-        self.surf = pygame.Surface(size)
-        self.surf.fill((255, 255, 255))
-        self.rect = self.surf.get_rect()
-        self.size = size
+class RemotePlayer(Character):
+    def __init__(self, screen_width, screen_height, id, username="Unnamed player", size=(60, 60)) -> None:
+        Character.__init__(self, screen_width, screen_height, username, size)
+        self.id = id
 
-        self.coords = [0, 0]
-
-        self.size = size
-
-        self.top_left = (-size[0] // 2, size[0] // 2)
-        self.top_right = (size[0] // 2, size[0] // 2)
-
-        self.bottom_left = (-size[0] // 2, -size[0] // 2)
-        self.bottom_right = (size[0] // 2, -size[0] // 2)
-
-        self.screen_width = screen_width
-        self.screen_height = screen_height
-
-    def update(self, screen, player_coords):
-        left = self.coords[0] - self.size[0] // 2
-        right = self.coords[0] + self.size[0] // 2
-        top = self.coords[1] - self.size[1] // 2
-        bottom = self.coords[1] + self.size[1] // 2
-
-        if ((self.coords[0] - player_coords[0]) + self.screen_width / 2) > -1 * self.size[0] and ((self.coords[0] - player_coords[0]) + self.screen_width / 2) < self.screen_width and (-1 * player_coords[1] + self.coords[1]) + self.screen_height / 2 > -1 * self.size[1] and (-1 * player_coords[1] + self.coords[1]) + self.screen_height / 2 < self.screen_height + self.size[1]:
-            screen.blit(self.surf, ((self.coords[0] - player_coords[0]) + self.screen_width // 2 - self.size[0] // 2, (-1*player_coords[1] + self.coords[1]) + self.screen_height // 2 - self.size[1] // 2))
+    def update(self, screen, coords):
+        if ((self.coords[0] - coords[0]) + self.screen_width / 2) > -1 * self.size[0] and ((self.coords[0] - coords[0]) + self.screen_width / 2) < self.screen_width and (-1 * coords[1] + self.coords[1]) + self.screen_height / 2 > -1 * self.size[1] and (-1 * coords[1] + self.coords[1]) + self.screen_height / 2 < self.screen_height + self.size[1]:
+            self.render(screen, coords)

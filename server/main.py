@@ -1,68 +1,45 @@
-import socket
-import select
+import threading
+import tcp_socket
+import udp_socket
+import traceback
+import pygame
 
-import coords_handler
+def tcp_socket_thread(users, game_search, games):
+    while True:
+        try:
+            tcp_socket.run('', 12860, users, game_search, games)
+        except Exception as exception:
+            print(traceback.format_exc())
 
-host = ""
-port = 12861
+def udp_socket_thread(users, games):
+    while True:
+        try:  
+            udp_socket.run('', 12861, users, games)
+        except Exception as exception:
+            print(traceback.format_exc())
 
-udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-udp_socket.bind((host, port))
+def games_thread(users, games):
+    clock = pygame.time.Clock()
+    while True:
+        try:
+            clock.tick(60)
+            for game in games:
+                game.update(users, games)
+        except:
+            print(traceback.format_exc())
 
-connected_clients = []
+if __name__ == "__main__":
+    users = {}
+    game_search = {"showdown": []}
+    games = []
 
-while True:
-    try:
-        data, addr = udp_socket.recvfrom(1024)
-        data = data.decode()
-        print(addr, data)
-        if addr not in connected_clients:
-            connected_clients.append(addr)
-        coords_handler.coords_handler(udp_socket, data, connected_clients, addr)
-    except Exception as exception:
-        print(exception)
+    events = []
+    event_lock = threading.Lock()
 
-# TCP socket, finishing it later
+    thread_1 = threading.Thread(target=tcp_socket_thread, args=[users, game_search, games])
+    thread_2 = threading.Thread(target=udp_socket_thread, args=[users, games])
+    thread_3 = threading.Thread(target=games_thread, args=[users, games])
 
-# hote = ''
-# port = 12860
-
-# server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# print("Connection...")
-# server.bind((hote, port))
-# server.listen(5)
-# print(f"The server is now connected on the port {port}")
-
-# server_enabled = True
-# connected_clients = []
-
-# while server_enabled:
-
-#     waiting_connections, wlist, xlist = select.select([server], [], [], 0.05)
-
-#     for connection in waiting_connections:
-#         connection_with_client, connection_infos = connection.accept()
-#         connected_clients.append(connection_with_client)
-
-#     to_read_clients = []
-
-#     try:
-#         to_read_clients, wlist, xlist = select.select(connected_clients, [], [], 0.05)
-#     except select.error:
-#         pass
-#     else:
-#         for client in to_read_clients:
-#             try:
-#                 data = client.recv(1024).decode()
-#                 print(data)
-#                 coords_handler.coords_handler(client, data, connected_clients)
-#             except Exception as exception:
-#                 print(exception)
-#                 # continue
-
-# print("Closing connections")
-# for client in connected_clients:
-#     client.close()
-
-# print("Connections closed")
-# server.close()
+    thread_1.start()
+    thread_2.start()
+    thread_3.start()

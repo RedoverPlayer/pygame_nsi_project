@@ -1,116 +1,102 @@
-from socket import socket
 import pygame
+import pygame_gui
 import json
 import time
 import threading
 
 import player as p
-import map_tile
-import remote_player
+import map as m
+import tcp_socket
 import udp_socket
+import camera as c
+import debug as d
+import rich_presence
+import game
+import menus
 
 from pygame.locals import (
     QUIT,
 )
 
-def main_thread(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, rplayer):
+def main_thread(screen, fps, ui_status, screen_width, screen_height, rplayers, udp_sock, username, id, auth_token, tcp_sock, server_ip, events, event_lock, rpc):
+    main_menu = menus.MainMenu(screen_width, screen_height)
+    
+    while True:
+        if ui_status[0] == "main_menu":
+            rpc.update(state="In menus")
+            main_menu.run(screen, fps, ui_status, events, event_lock)
+
+        elif ui_status[0] == "searching_game":
+            search_menu = menus.SearchMenu(screen_width, screen_height)
+            search_menu.run(screen, fps, ui_status, events, event_lock, tcp_sock, rpc)
+
+        elif ui_status[0] == "showdown_game":
+            rpc.update(state="In game", details="Showdown")
+            showdown_game = game.ShowdownGame(screen_width, screen_height, "map1.json", screen, fps, rplayers, udp_sock, server_ip, id, auth_token, username)
+            showdown_game.run(ui_status, events, event_lock)
+            rplayers.clear()
+        
+        elif ui_status[0] == "end_screen":
+            end_screen = menus.EndScreen(screen_width, screen_height)
+            end_screen.run(screen, fps, ui_status, events, event_lock, rpc)
+
+        elif ui_status[0] == "quit":
+            break
+
+if __name__ == "__main__":
+    # ---- config ----
+    screen_width = 1920
+    screen_height = 1080
+
+    fps = 144
+    server_ip = "localhost"
+    # -----------------
+
     # initialize pygame
     pygame.init()
     pygame.font.init()
+    pygame.mixer.init()
 
-    # window title
+    # instantiation of important variables
     pygame.display.set_caption("NSI project")
-
-    myfont = pygame.font.SysFont("freesansbold.ttf", 48)
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-
-    screen.fill((50, 50, 50))
-
-    # loading player
-    player = p.Player(SCREEN_WIDTH, SCREEN_HEIGHT, (60, 60))
-
-    # loading map tiles
-    with open("map1.json", "r") as f:
-        map = json.loads(f.read())
-
-    map_size = 60
-    tile_size = 100
-    map_tiles = []
-
-    # generating map tiles
-    x_coord = 0
-    y_coord = 0
-
-    for y in map:
-        x_coord = 0
-        for x in y:
-            map_tiles.append(map_tile.MapTile(SCREEN_WIDTH, SCREEN_HEIGHT, x_coord, y_coord, tile_size, x))
-            x_coord += tile_size
-        y_coord += tile_size
-
-    running = True
-
-    clock = pygame.time.Clock()
+    menus.updateThemeJson(screen_width, screen_height)
     
-    # main loop
-    while running:
-        # The game runs at max 144 FPS (a little less due to the time of computation of each frame)
-        tick_time = clock.tick(144)
+    screen = pygame.display.set_mode((screen_width, screen_height))
 
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                running = False
+    rplayers = []
+    ui_status = ["connecting"]
+    events = []
+    event_lock = threading.Lock()
 
-        # changing player coords when pressing keys
-        pressed_keys = pygame.key.get_pressed()
+    # connect sockets
+    data = []
+    thread_1 = threading.Thread(target=tcp_socket.connect, args=(server_ip, 12860, data, ui_status, ))
+    thread_1.start()
 
-        # background color
-        screen.fill((50, 50, 50))
+    connection_menu = menus.ConnectionMenu(screen_width, screen_height)
+    connection_menu.run(screen, fps, ui_status)
 
-        # adding map tiles to the screen
-        tiles_rendered = [elem for elem in [map_tile.update(screen, player.coords) for map_tile in map_tiles] if elem != None]
+    username, id, auth_token, tcp_sock = data
 
-        rplayer.update(screen, player.coords)
-        player.update(pressed_keys, tiles_rendered, map_size, tile_size, tick_time, 2)
+    udp_sock = udp_socket.connect(server_ip, 12861, auth_token)
+    ui_status = ["main_menu"]
 
-        # test for remote player
-        
-        # add the player to the screen
-        screen.blit(player.surf, (SCREEN_WIDTH/2 - player.size[0]/2, SCREEN_HEIGHT/2 - player.size[1]/2))
-        udp_socket.sendCoords(udp_sock, ("localhost", 12861), player.coords)
+    # create and start main threads
+    thread_2 = threading.Thread(target=tcp_socket.run, args=(tcp_sock, id, auth_token, rplayers, screen_width, screen_height, events, event_lock))
+    thread_3 = threading.Thread(target=udp_socket.run, args=(udp_sock, rplayers, ))
 
-        # debug
-        playercoords = myfont.render(str(player.coords), True, (250, 250, 250))
-        screen.blit(playercoords, (5, 5))
-        
-        tiles_number = myfont.render("Rendered tiles : " + str(len(tiles_rendered)), True, (250, 250, 250))
-        screen.blit(tiles_number, (5, 50))
+    thread_2.daemon = True
+    thread_3.daemon = True
 
-        # render elements to the screen
-        pygame.display.flip()
+    thread_2.start()
+    thread_3.start()
 
-def socket_receive(udp_sock, rplayer):
-    while True:
-        # try:
-        data, addr = udp_sock.recvfrom(1024)
-        data = json.loads(data.decode())
-        if data["type"] == "remote_coords":
-            rplayer.coords = data["coords"]
-        # except:
-        #     pass
+    # connect discord rich presence
+    try:
+        rpc = rich_presence.RichPresence(825326652124430366)
+        rpc.connect()
+        rpc.update("In menus", "Ouais le nom du jeu est pas ouf mais en vrai ça passe")
+    except:
+        pass
 
-SCREEN_WIDTH = 1920
-SCREEN_HEIGHT = 1080
-
-remoteplayer = remote_player.RemotePlayer(SCREEN_WIDTH, SCREEN_HEIGHT)
-
-# connect socket
-udp_sock = udp_socket.connect("localhost", 12861)
-
-# data_lock = threading.Lock()
-
-thread_1 = threading.Thread(target=main_thread, args=(udp_sock, SCREEN_WIDTH, SCREEN_HEIGHT, remoteplayer, ))
-thread_2 = threading.Thread(target=socket_receive, args=(udp_sock, remoteplayer, ))
-
-thread_1.start()
-thread_2.start()
+    main_thread(screen, fps, ui_status, screen_width, screen_height, rplayers, udp_sock, username, id, auth_token, tcp_sock, server_ip, events, event_lock, rpc)
