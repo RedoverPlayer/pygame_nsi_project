@@ -117,7 +117,14 @@ class SearchMenu(Menu):
             object_id="title"
         )
 
-    def run(self, screen, fps, ui_status, events, event_lock, tcp_sock):
+        self.quit_button = pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect((screen_width * 0.82, screen_height - screen_height // 11), (screen_width // 6, screen_height // 15)),
+            text='QUIT',
+            manager=self.manager,
+            object_id="play_button"
+        )
+
+    def run(self, screen, fps, ui_status, events, event_lock, tcp_sock, rpc):
         tcp_sock.send('{"type": "game_search", "gamemode": "showdown"}'.encode())
 
         running = True
@@ -129,7 +136,8 @@ class SearchMenu(Menu):
             for event in events:
                 if event["type"] == "search_update":
                     self.title.set_text(f"Searching for a game ({event['player_count']}/2)")
-                
+                    rpc.update(state=f"{event['player_count']}/2", details="Searching for a game")
+
                 elif event["type"] == "search_finished":
                     self.title.set_text(f"Launching game")
                     ui_status[0] = "showdown_game"
@@ -140,8 +148,15 @@ class SearchMenu(Menu):
 
             for event in pygame.event.get():
                 self.manager.process_events(event)
+                
+                if event.type == pygame.USEREVENT:
+                    if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                        if event.ui_element == self.quit_button:
+                            running = False
+                            ui_status[0] = "main_menu"
+                            tcp_sock.send('{"type": "stop_search", "gamemode": "showdown"}'.encode())
 
-                if event.type == pygame.KEYDOWN:
+                elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         running = False
                         ui_status[0] = "main_menu"
@@ -161,37 +176,74 @@ class EndScreen(Menu):
         Menu.__init__(self, screen_width, screen_height)
 
         self.title = pygame_gui.elements.UILabel(
-            relative_rect=pygame.Rect((self.centerX(screen_width // 1.2), self.centerY(screen_height // 15)), (screen_width // 1.2, screen_height // 15)),
+            relative_rect=pygame.Rect((self.centerX(screen_width // 1.2), screen_height // 15), (screen_width // 1.2, screen_height // 15)),
             text='Game finished',
             manager=self.manager,
             object_id="title"
         )
 
-    def run(self, screen, fps, ui_status, events, event_lock, tcp_sock):
-        tcp_sock.send('{"type": "game_search", "gamemode": "showdown"}'.encode())
+        self.classment_position = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect((self.centerX(screen_width // 1.2), screen_height // 4), (screen_width // 1.2, screen_height // 15)),
+            text='Classment position',
+            manager=self.manager,
+            object_id="classment_position"
+        )
+
+        self.kills = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect((self.centerX(screen_width // 1.2), screen_height // 4 + screen_height // 8), (screen_width // 1.2, screen_height // 15)),
+            text='Kills',
+            manager=self.manager,
+            object_id="classment_position"
+        )
+
+        self.trophies = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect((self.centerX(screen_width // 1.2), screen_height // 2), (screen_width // 1.2, screen_height // 15)),
+            text='trophies',
+            manager=self.manager,
+            object_id="classment_position"
+        )
+
+        self.quit_button = pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect((screen_width * 0.82, screen_height - screen_height // 11), (screen_width // 6, screen_height // 15)),
+            text='QUIT',
+            manager=self.manager,
+            object_id="play_button"
+        )
+
+    def run(self, screen, fps, ui_status, events, event_lock, rpc):
+        rpc.update(state=f"End screen", details="Showdown")
+
+        # update labels to display data received from the server
+        event_lock.acquire()
+
+        for event in events:
+            if event["type"] == "game_ended":
+                classment_position = event["classment_position"]
+                kills = event["kills"]
+                trophies = event["trophies"]
+
+        self.classment_position.set_text(f"Classment position : {classment_position}/10")
+        self.kills.set_text(f"Kills : {kills}")
+        self.trophies.set_text(f"Trophies : {trophies}")
+
+        events.clear()
+        event_lock.release()
 
         running = True
         while running:
             time_delta = self.clock.tick(fps)/1000.0
             screen.fill((50, 50, 50))
 
-            event_lock.acquire()
-            for event in events:
-                if event["type"] == "search_update":
-                    self.title.set_text(f"Searching for a game ({event['player_count']}/2)")
-                
-                elif event["type"] == "search_finished":
-                    self.title.set_text(f"Launching game")
-                    ui_status[0] = "showdown_game"
-                    running = False
-
-            events.clear()
-            event_lock.release()
-
             for event in pygame.event.get():
                 self.manager.process_events(event)
+                
+                if event.type == pygame.USEREVENT:
+                    if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                        if event.ui_element == self.quit_button:
+                            ui_status[0] = "main_menu"
+                            running = False
 
-                if event.type == pygame.KEYDOWN:
+                elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         running = False
                         ui_status[0] = "main_menu"

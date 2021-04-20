@@ -18,21 +18,27 @@ from pygame.locals import (
     QUIT,
 )
 
-def main_thread(screen, fps, ui_status, screen_width, screen_height, rplayers, udp_sock, username, id, auth_token, tcp_sock, server_ip, events, event_lock):
+def main_thread(screen, fps, ui_status, screen_width, screen_height, rplayers, udp_sock, username, id, auth_token, tcp_sock, server_ip, events, event_lock, rpc):
     main_menu = menus.MainMenu(screen_width, screen_height)
     
     while True:
         if ui_status[0] == "main_menu":
+            rpc.update(state="In menus")
             main_menu.run(screen, fps, ui_status, events, event_lock)
 
         elif ui_status[0] == "searching_game":
             search_menu = menus.SearchMenu(screen_width, screen_height)
-            search_menu.run(screen, fps, ui_status, events, event_lock, tcp_sock)
+            search_menu.run(screen, fps, ui_status, events, event_lock, tcp_sock, rpc)
 
         elif ui_status[0] == "showdown_game":
+            rpc.update(state="In game", details="Showdown")
             showdown_game = game.ShowdownGame(screen_width, screen_height, "map1.json", screen, fps, rplayers, udp_sock, server_ip, id, auth_token, username)
             showdown_game.run(ui_status, events, event_lock)
             rplayers.clear()
+        
+        elif ui_status[0] == "end_screen":
+            end_screen = menus.EndScreen(screen_width, screen_height)
+            end_screen.run(screen, fps, ui_status, events, event_lock, rpc)
 
         elif ui_status[0] == "quit":
             break
@@ -93,4 +99,4 @@ if __name__ == "__main__":
     except:
         pass
 
-    main_thread(screen, fps, ui_status, screen_width, screen_height, rplayers, udp_sock, username, id, auth_token, tcp_sock, server_ip, events, event_lock)
+    main_thread(screen, fps, ui_status, screen_width, screen_height, rplayers, udp_sock, username, id, auth_token, tcp_sock, server_ip, events, event_lock, rpc)

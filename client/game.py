@@ -79,20 +79,14 @@ class ShowdownGame(Game):
             event_lock.acquire()
             for event in events:
                 if event["type"] == "game_ended":
-                    ui_status[0] = "main_menu"
+                    ui_status[0] = "end_screen"
                     self.running = False
-            events.clear()
             event_lock.release()
 
             for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        self.running = False
-                        ui_status[0] = "main_menu"
-
-                elif event.type == pygame.locals.QUIT:
+                if event.type == pygame.locals.QUIT:
                     self.running = False
-                    ui_status[0] = "main_menu"
+                    ui_status[0] = "quit"
 
             self.pressed_keys = pygame.key.get_pressed()
             tiles_rendered = self.update()

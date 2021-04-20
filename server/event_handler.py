@@ -1,7 +1,7 @@
 import game
 
 def checkGameSearch(game_search, users, games):
-    showdown_player_count = 4
+    showdown_player_count = 2
     if len(game_search["showdown"]) >= showdown_player_count:
         for c in game_search["showdown"][:showdown_player_count]:
             c.send('{"type": "search_finished"}$'.encode())

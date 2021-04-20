@@ -76,7 +76,8 @@ def run(hote, port, users, game_search, games):
                         continue
 
                 except socket.error:
-                    print(traceback.format_exc())
+                    # print(traceback.format_exc())
+                    print("One client disconnected")
                     removeClient(client, tcp_clients, users, games, game_search)
                 except Exception as exception:
                     print(traceback.format_exc())
