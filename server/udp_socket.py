@@ -4,28 +4,23 @@ import traceback
 
 import coords_handler
 
-def run(host, port, users, games):
-    udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    udp_socket.bind((host, port))
-
-    connected_clients = []
-
+def run(host, port, users, games, udp_sock, udp_clients):
     while True:
         try:
-            data, addr = udp_socket.recvfrom(1024)
-            data = json.loads(data.decode())
+            data, addr = udp_sock.recvfrom(1024)
+            data = json.loads(data.decode("ascii"))
 
-            for elem in connected_clients:
+            for elem in udp_clients:
                 if elem["auth_token"] not in [elem["auth_token"] for elem in users.values()]:
-                    removeIfInConnectedClients(elem["auth_token"], elem["addr"], connected_clients)
+                    removeIfInConnectedClients(elem["auth_token"], elem["addr"], udp_clients)
 
             if data["auth_token"] in [elem["auth_token"] for elem in users.values()]:
-                if addIfNotInConnectedClients(data, addr, connected_clients):
-                    coords_handler.coords_handler(udp_socket, data, connected_clients, addr, users, games)
+                if addIfNotInConnectedClients(data, addr, udp_clients):
+                    coords_handler.coords_handler(udp_sock, data, udp_clients, addr, users, games)
             elif data["type"] == "address_delivery":
-                addIfNotInConnectedClients(data, addr, connected_clients)
+                addIfNotInConnectedClients(data, addr, udp_clients)
             else:
-                removeIfInConnectedClients(data, addr, connected_clients)
+                removeIfInConnectedClients(data, addr, udp_clients)
         except Exception as exception:
             print(traceback.format_exc())
 

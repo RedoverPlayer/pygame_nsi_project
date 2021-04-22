@@ -18,7 +18,7 @@ from pygame.locals import (
     QUIT,
 )
 
-def main_thread(screen, fps, ui_status, screen_width, screen_height, rplayers, udp_sock, username, id, auth_token, tcp_sock, server_ip, events, event_lock, rpc):
+def main_thread(screen, fps, ui_status, screen_width, screen_height, rplayers, projs, udp_sock, username, id, auth_token, tcp_sock, server_ip, events, event_lock, rpc):
     main_menu = menus.MainMenu(screen_width, screen_height)
     
     while True:
@@ -32,7 +32,7 @@ def main_thread(screen, fps, ui_status, screen_width, screen_height, rplayers, u
 
         elif ui_status[0] == "showdown_game":
             rpc.update(state="In game", details="Showdown")
-            showdown_game = game.ShowdownGame(screen_width, screen_height, "map1.json", screen, fps, rplayers, udp_sock, server_ip, id, auth_token, username)
+            showdown_game = game.ShowdownGame(screen_width, screen_height, "map1.json", screen, fps, rplayers, projs, udp_sock, server_ip, id, auth_token, username, tcp_sock)
             showdown_game.run(ui_status, events, event_lock)
             rplayers.clear()
         
@@ -64,6 +64,7 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode((screen_width, screen_height))
 
     rplayers = []
+    projs = []
     ui_status = ["connecting"]
     events = []
     event_lock = threading.Lock()
@@ -83,7 +84,7 @@ if __name__ == "__main__":
 
     # create and start main threads
     thread_2 = threading.Thread(target=tcp_socket.run, args=(tcp_sock, id, auth_token, rplayers, screen_width, screen_height, events, event_lock))
-    thread_3 = threading.Thread(target=udp_socket.run, args=(udp_sock, rplayers, ))
+    thread_3 = threading.Thread(target=udp_socket.run, args=(udp_sock, rplayers, projs, ))
 
     thread_2.daemon = True
     thread_3.daemon = True
@@ -99,4 +100,4 @@ if __name__ == "__main__":
     except:
         pass
 
-    main_thread(screen, fps, ui_status, screen_width, screen_height, rplayers, udp_sock, username, id, auth_token, tcp_sock, server_ip, events, event_lock, rpc)
+    main_thread(screen, fps, ui_status, screen_width, screen_height, rplayers, projs, udp_sock, username, id, auth_token, tcp_sock, server_ip, events, event_lock, rpc)

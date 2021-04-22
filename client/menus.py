@@ -125,7 +125,7 @@ class SearchMenu(Menu):
         )
 
     def run(self, screen, fps, ui_status, events, event_lock, tcp_sock, rpc):
-        tcp_sock.send('{"type": "game_search", "gamemode": "showdown"}'.encode())
+        tcp_sock.send('{"type": "game_search", "gamemode": "showdown"}$'.encode("ascii"))
 
         running = True
         while running:
@@ -154,13 +154,13 @@ class SearchMenu(Menu):
                         if event.ui_element == self.quit_button:
                             running = False
                             ui_status[0] = "main_menu"
-                            tcp_sock.send('{"type": "stop_search", "gamemode": "showdown"}'.encode())
+                            tcp_sock.send('{"type": "stop_search", "gamemode": "showdown"}$'.encode("ascii"))
 
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         running = False
                         ui_status[0] = "main_menu"
-                        tcp_sock.send('{"type": "stop_search", "gamemode": "showdown"}'.encode())
+                        tcp_sock.send('{"type": "stop_search", "gamemode": "showdown"}$'.encode("ascii"))
 
                 elif event.type == pygame.locals.QUIT:
                     running = False

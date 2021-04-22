@@ -1,5 +1,6 @@
 import json
 import traceback
+import math
 
 class Game:
     def __init__(self, clients, users):
@@ -14,7 +15,9 @@ class Game:
             connected_users = []
             for user in [elem for elem in users if elem in self.clients and elem != client]:
                 connected_users.append({"type": "player_connection", "id": users[user]["id"], "username": users[user]["username"]})
-            client.send(('{"type": "multiple_players_connection", "players": ' + json.dumps(connected_users) + '}$').encode())
+            client.send(('{"type": "multiple_players_connection", "players": ' + json.dumps(connected_users) + '}$').encode("ascii"))
+
+        self.projs = []
 
     def playerDisconnect(self):
         pass
@@ -30,7 +33,7 @@ class Game:
         classment_position = len(self.clients)
         for client in self.clients:
             try:
-                client.send(('{"type": "game_ended", "classment_position": ' + str(classment_position) + ', "kills": ' + str(self.stats_dict[client]["kills"]) + ', "trophies": 0}$').encode())
+                client.send(('{"type": "game_ended", "classment_position": ' + str(classment_position) + ', "kills": ' + str(self.stats_dict[client]["kills"]) + ', "trophies": 0}$').encode("ascii"))
             except:
                 print(traceback.format_exc())
         games.remove(self)
@@ -38,7 +41,7 @@ class Game:
     def removeClient(self, client, users):
         for other_client in [elem for elem in self.clients if elem != client]:
             try:
-                other_client.send(('{"type": "player_disconnection", "id": "' + users[client]["id"] + '"}$').encode())
+                other_client.send(('{"type": "player_disconnection", "id": "' + users[client]["id"] + '"}$').encode("ascii"))
             except:
                 print(traceback.format_exc())
         self.clients.remove(client)
@@ -47,13 +50,13 @@ class Game:
     def closeClient(self, client, users):
         classment_position = len(self.clients)
         try:
-            client.send(('{"type": "game_ended", "classment_position": ' + str(classment_position) + ', "kills": ' + str(self.stats_dict[client]["kills"]) + ', "trophies": 0}$').encode())
+            client.send(('{"type": "game_ended", "classment_position": ' + str(classment_position) + ', "kills": ' + str(self.stats_dict[client]["kills"]) + ', "trophies": 0}$').encode("ascii"))
         except:
             print(traceback.format_exc())
 
         for other_client in [elem for elem in self.clients if elem != client]:
             try:
-                other_client.send(('{"type": "player_disconnection", "id": "' + users[client]["id"] + '"}$').encode())
+                other_client.send(('{"type": "player_disconnection", "id": "' + users[client]["id"] + '"}$').encode("ascii"))
             except:
                 print(traceback.format_exc())
         self.clients.remove(client)
@@ -63,8 +66,12 @@ class ShowdownGame(Game):
         Game.__init__(self, clients, users)
         self.gamemode = "showdown"
 
-    def update(self, users, games):
+    def update(self, users, games, tick_time, udp_sock, udp_clients):
         self.check_clients(users, games)
+
         for client in self.stats_dict:
             if self.stats_dict[client]["hp"] == 0:
                 self.closeClient(client, users)
+
+        for proj in self.projs: 
+            proj.update(tick_time, udp_sock, self, udp_clients, users)

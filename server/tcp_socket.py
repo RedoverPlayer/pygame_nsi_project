@@ -18,7 +18,7 @@ def removeClient(client, tcp_clients, users, games, game_search):
             if c == client:
                 game_search[gamemode].remove(client)
                 for c2 in game_search[gamemode]:
-                    c2.send(('{"type": "search_update", "player_count": "' + str(len(game_search[gamemode])) + '"}$').encode())
+                    c2.send(('{"type": "search_update", "player_count": "' + str(len(game_search[gamemode])) + '"}$').encode("ascii"))
 
     if client in users:
         del users[client]
@@ -51,29 +51,30 @@ def run(hote, port, users, game_search, games):
         else:
             for client in to_read_clients:
                 try:
-                    data = client.recv(1024).decode()
-                    print(data)
-                    try:
-                        if data != "":
-                            data = json.loads(data)
-                            if type(data["type"]) != str:
-                                print("data type not string")
-                                removeClient(client, tcp_clients, users, games, game_search)
+                    data_list = client.recv(1024).decode("ascii").split("$")
+                    for data in data_list:
+                        try:
+                            if data != "":
+                                print(data)
+                                data = json.loads(data)
+                                if type(data["type"]) != str:
+                                    print("data type not string")
+                                    removeClient(client, tcp_clients, users, games, game_search)
 
-                            if data["type"] != "login" and not client in users:
-                                print("Invalid request")
-                                removeClient(client, tcp_clients, users, games, game_search)
+                                if data["type"] != "login" and not client in users:
+                                    print("Invalid request")
+                                    removeClient(client, tcp_clients, users, games, game_search)
 
-                            if data["type"] != "login":
-                                event_handler.event_received(data, client, users, game_search, games)
-                            elif data["type"] == "login":
-                                login.loginRequest(client, tcp_clients, users)
+                                if data["type"] != "login":
+                                    event_handler.event_received(data, client, users, game_search, games)
+                                elif data["type"] == "login":
+                                    login.loginRequest(client, tcp_clients, users)
 
-                    except Exception as exception:
-                        print(traceback.format_exc())
-                        removeClient(client, tcp_clients, users, games, game_search)
+                        except Exception as exception:
+                            print(traceback.format_exc())
+                            removeClient(client, tcp_clients, users, games, game_search)
 
-                        continue
+                            continue
 
                 except socket.error:
                     # print(traceback.format_exc())
