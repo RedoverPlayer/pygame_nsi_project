@@ -35,6 +35,7 @@ def main_thread(screen, fps, ui_status, screen_width, screen_height, rplayers, p
             showdown_game = game.ShowdownGame(screen_width, screen_height, "map1.json", screen, fps, rplayers, projs, udp_sock, server_ip, id, auth_token, username, tcp_sock)
             showdown_game.run(ui_status, events, event_lock)
             rplayers.clear()
+            projs.clear()
         
         elif ui_status[0] == "end_screen":
             end_screen = menus.EndScreen(screen_width, screen_height)

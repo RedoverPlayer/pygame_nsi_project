@@ -1,5 +1,6 @@
 import game
 import abilities
+import time
 
 def checkGameSearch(game_search, users, games):
     showdown_player_count = 2
@@ -28,4 +29,6 @@ def event_received(data, client, users, game_search, games):
         for game in games:
             for game_client in game.clients:
                 if client == game_client:
-                    game.projs.append(abilities.Projectile(data["coords"], data["angle"], game))
+                    if time.time() - game.stats_dict[client]["main_ability_timestamp"] >= 0.5:
+                        game.stats_dict[client]["main_ability_timestamp"] = time.time()
+                        game.projs.append(abilities.Projectile(data["coords"], data["angle"], game, users[client]["id"]))

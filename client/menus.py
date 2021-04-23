@@ -189,15 +189,29 @@ class EndScreen(Menu):
             object_id="classment_position"
         )
 
-        self.kills = pygame_gui.elements.UILabel(
+        self.damage_dealt = pygame_gui.elements.UILabel(
             relative_rect=pygame.Rect((self.centerX(screen_width // 1.2), screen_height // 4 + screen_height // 8), (screen_width // 1.2, screen_height // 15)),
+            text='Damage dealt',
+            manager=self.manager,
+            object_id="classment_position"
+        )
+
+        self.damage_taken = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect((self.centerX(screen_width // 1.2), screen_height // 4 + 2 * screen_height // 8), (screen_width // 1.2, screen_height // 15)),
+            text='Damage taken',
+            manager=self.manager,
+            object_id="classment_position"
+        )
+
+        self.kills = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect((self.centerX(screen_width // 1.2), screen_height // 4 + 3 * screen_height // 8), (screen_width // 1.2, screen_height // 15)),
             text='Kills',
             manager=self.manager,
             object_id="classment_position"
         )
 
         self.trophies = pygame_gui.elements.UILabel(
-            relative_rect=pygame.Rect((self.centerX(screen_width // 1.2), screen_height // 2), (screen_width // 1.2, screen_height // 15)),
+            relative_rect=pygame.Rect((self.centerX(screen_width // 1.2), screen_height // 4 + 4 * screen_height // 8), (screen_width // 1.2, screen_height // 15)),
             text='trophies',
             manager=self.manager,
             object_id="classment_position"
@@ -214,20 +228,19 @@ class EndScreen(Menu):
         rpc.update(state=f"End screen", details="Showdown")
 
         # update labels to display data received from the server
-        event_lock.acquire()
-
-        for event in events:
-            if event["type"] == "game_ended":
-                classment_position = event["classment_position"]
-                kills = event["kills"]
-                trophies = event["trophies"]
+        
+        classment_position = ui_status[1]["classment_position"]
+        damage_dealt = ui_status[1]["damage_dealt"]
+        damage_taken = ui_status[1]["damage_taken"]
+        kills = ui_status[1]["kills"]
+        trophies = ui_status[1]["trophies"]
+        del ui_status[1]
 
         self.classment_position.set_text(f"Classment position : {classment_position}/10")
+        self.damage_dealt.set_text(f"Damage dealt : {damage_dealt}")
+        self.damage_taken.set_text(f"Damage taken : {damage_taken}")
         self.kills.set_text(f"Kills : {kills}")
         self.trophies.set_text(f"Trophies : {trophies}")
-
-        events.clear()
-        event_lock.release()
 
         running = True
         while running:

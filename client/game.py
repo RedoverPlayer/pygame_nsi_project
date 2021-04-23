@@ -90,14 +90,19 @@ class ShowdownGame(Game):
                     for proj in self.projs:
                         if proj.id == event["id"]:
                             self.projs.remove(proj)
+                elif event["type"] == "hp_change":
+                    self.player.hp = event["hp"]
+                elif event["type"] == "remote_hp_change":
+                    for rplayer in self.rplayers:
+                        if rplayer.id == event["id"]:
+                            rplayer.hp = event["hp"]
                 elif event["type"] == "game_ended":
                     ui_status[0] = "end_screen"
+                    ui_status.append(event.copy())
                     self.running = False
 
             events.clear()
             event_lock.release()
-
-            print(len(self.projs))
 
             for event in pygame.event.get():
                 if event.type == pygame.locals.QUIT:

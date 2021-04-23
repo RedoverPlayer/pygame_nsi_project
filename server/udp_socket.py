@@ -21,7 +21,7 @@ def run(host, port, users, games, udp_sock, udp_clients):
                 addIfNotInConnectedClients(data, addr, udp_clients)
             else:
                 removeIfInConnectedClients(data, addr, udp_clients)
-        except Exception as exception:
+        except:
             print(traceback.format_exc())
 
 def addIfNotInConnectedClients(data, addr, connected_clients):

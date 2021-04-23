@@ -30,7 +30,7 @@ def run(connection_with_server, id, auth_token, rplayers, screen_width, screen_h
             data_list = connection_with_server.recv(1024).decode("ascii").split("$")
             for elem in [elem for elem in data_list if elem != ""]:
                 data = json.loads(elem)
-                # print(data)
+                print(data)
 
                 if data["type"] == "player_connection":
                     rplayers.append(remote_player.RemotePlayer(screen_width, screen_height, data["id"], data["username"]))

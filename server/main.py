@@ -9,14 +9,14 @@ def tcp_socket_thread(users, game_search, games):
     while True:
         try:
             tcp_socket.run('', 12860, users, game_search, games)
-        except Exception as exception:
+        except:
             print(traceback.format_exc())
 
 def udp_socket_thread(users, games, udp_sock, udp_clients):
     while True:
-        try:  
+        try:
             udp_socket.run('', 12861, users, games, udp_sock, udp_clients)
-        except Exception as exception:
+        except:
             print(traceback.format_exc())
 
 def games_thread(users, games, udp_sock, udp_clients):
