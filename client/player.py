@@ -1,12 +1,14 @@
 from character import Character
 import pygame
 import abilities
+import time
 
 class Player(Character):
     def __init__(self, screen_width, screen_height, username="Unnamed player", size=(60, 60)) -> None:
         Character.__init__(self, screen_width, screen_height, username, size)
+        self.main_ability_status = "available"
 
-    def update(self, pressed_keys, rendered_tiles, map_size, tile_size, tick_time, screen, camera, speed=2):
+    def update(self, pressed_keys, rendered_tiles, map_size, tile_size, tick_time, screen, camera, projs, tcp_sock, speed=2):
         movement_speed = tick_time / 4
 
         left = self.coords[0] - self.size[0] / 2
@@ -76,6 +78,8 @@ class Player(Character):
         self.coords[1] = round(tmpcoords[1], 4)
       
         if pressed_keys[pygame.K_SPACE]:
-            proj1= abilities.Projectile(self.screen_width, self.screen_height, self.coords)
+            if self.main_ability_status == "available":
+                abilities.sendProjToServer(self.screen_width, self.screen_height, tcp_sock, self.coords, camera.coords)
+                self.main_ability_status = "reloading"
 
         screen.blit(pygame.transform.rotate(self.surf, self.angle), (self.screen_width/2 + self.coords[0] - camera.coords[0] - self.size[0]/2, self.screen_height/2 + self.coords[1] - camera.coords[1] - self.size[1]/2))

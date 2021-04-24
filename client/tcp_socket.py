@@ -14,8 +14,8 @@ def connect(hote, port, vars, ui_status):
             connection_with_server.connect((hote, port))
             print("Connected on the port {}".format(port))
 
-            connection_with_server.send('{"type": "login"}'.encode())
-            data = json.loads(connection_with_server.recv(1024).decode())
+            connection_with_server.send('{"type": "login"}$'.encode("ascii"))
+            data = json.loads(connection_with_server.recv(1024).decode("ascii"))
             break
         except:
             ui_status[0] = "connection_failed"
@@ -27,7 +27,7 @@ def connect(hote, port, vars, ui_status):
 def run(connection_with_server, id, auth_token, rplayers, screen_width, screen_height, events, event_lock):
     while True:
         try:
-            data_list = connection_with_server.recv(1024).decode().split("$")
+            data_list = connection_with_server.recv(1024).decode("ascii").split("$")
             for elem in [elem for elem in data_list if elem != ""]:
                 data = json.loads(elem)
                 print(data)

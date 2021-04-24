@@ -7,7 +7,7 @@ def loginRequest(client, connected_clients, users):
     username = client.getpeername()[0]
 
     # sending login infos to client
-    client.send(('{"type": "account_infos", "auth_token": "' + token + '", "id": "' + id + '", "username": "' + username + '"}').encode())    
+    client.send(('{"type": "account_infos", "auth_token": "' + token + '", "id": "' + id + '", "username": "' + username + '"}').encode("ascii"))    
     
     # adding client to users
     users[client] = {"auth_token": token, "id": id, "username": username}
