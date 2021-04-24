@@ -1,6 +1,7 @@
 import json
 import traceback
 import time
+import map
 
 class Game:
     def __init__(self, clients, users):
@@ -9,7 +10,7 @@ class Game:
 
         stats_dict = {}
         for client in self.clients:
-            stats_dict[client] = {"hp": 400, "kills": 0, "damage_dealt": 0, "damage_taken": 0, "position": [0, 0], "main_ability_timestamp": time.time()}
+            stats_dict[client] = {"hp": 400, "kills": 0, "damage_dealt": 0, "damage_taken": 0, "position": [0, 0], "main_ability_timestamp": time.time(), "main_ability_status": "reloading"}
         self.stats_dict = stats_dict
 
         for client in self.clients:
@@ -86,12 +87,19 @@ class ShowdownGame(Game):
     def __init__(self, clients, users):
         Game.__init__(self, clients, users)
         self.gamemode = "showdown"
+        self.map = map.Map("maps/map1.json", 80, 60, 200, 200)
 
     def update(self, users, games, tick_time, udp_sock, udp_clients):
         self.check_clients(games)
         self.games = games
 
         for client in self.stats_dict:
+            if self.stats_dict[client]["main_ability_status"] == "reloading" and time.time() - self.stats_dict[client]["main_ability_timestamp"] >= 0.5:
+                self.stats_dict[client]["main_ability_status"] = "available"
+                try:
+                    client.send('{"type": "main_ability_available"}$'.encode("ascii"))
+                except:
+                    print(traceback.format_exc())
             if self.stats_dict[client]["hp"] == 0:
                 self.closeClient(client, users)
 

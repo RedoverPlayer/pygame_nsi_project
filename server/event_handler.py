@@ -31,4 +31,5 @@ def event_received(data, client, users, game_search, games):
                 if client == game_client:
                     if time.time() - game.stats_dict[client]["main_ability_timestamp"] >= 0.5:
                         game.stats_dict[client]["main_ability_timestamp"] = time.time()
-                        game.projs.append(abilities.Projectile(data["coords"], data["angle"], game, users[client]["id"]))
+                        game.stats_dict[client]["main_ability_status"] = "reloading"
+                        game.projs.append(abilities.Projectile(game.stats_dict[client]["position"], data["angle"], game, users[client]["id"]))

@@ -96,6 +96,8 @@ class ShowdownGame(Game):
                     for rplayer in self.rplayers:
                         if rplayer.id == event["id"]:
                             rplayer.hp = event["hp"]
+                elif event["type"] == "main_ability_available":
+                    self.player.main_ability_status = "available"
                 elif event["type"] == "game_ended":
                     ui_status[0] = "end_screen"
                     ui_status.append(event.copy())

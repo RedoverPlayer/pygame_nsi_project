@@ -40,4 +40,4 @@ def sendProjToServer(screen_width, screen_height, tcp_sock, player_coords, camer
 
     angle = (math.atan2(player_mouse_vector[1], player_mouse_vector[0]) - math.atan2(forward_vector[1], forward_vector[0]))
 
-    tcp_sock.send(('{"type": "proj", "coords": ' + str(player_coords) + ', "angle": ' + str(angle) + '}$').encode("ascii"))
+    tcp_sock.send(('{"type": "proj", "angle": ' + str(angle) + '}$').encode("ascii"))

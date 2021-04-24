@@ -70,7 +70,9 @@ def run(hote, port, users, game_search, games):
                                 elif data["type"] == "login":
                                     login.loginRequest(client, tcp_clients, users)
 
-                        except Exception as exception:
+                        except json.decoder.JSONDecodeError:
+                            pass
+                        except:
                             print(traceback.format_exc())
                             removeClient(client, tcp_clients, users, games, game_search)
 

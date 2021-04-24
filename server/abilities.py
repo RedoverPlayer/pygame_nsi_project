@@ -40,6 +40,9 @@ class Projectile:
                     game.HPChangeProjectile(c, self.damage, self.sender_id)
                     self.wallOrPlayerCollision(game)
                     break
+            for tile in game.map.getTilesAroundCoords(self.coords):
+                if (tile.type in ("wall", "cactus", "barrel", "crate")) and (self.coords[1] > tile.top) and (self.coords[1] < tile.bottom) and (self.coords[0] > tile.left) and (self.coords[0] < tile.right):
+                    self.wallOrPlayerCollision(game)
             for client in game.clients:
                 if users[client]["auth_token"] in [elem["auth_token"] for elem in udp_clients]:
                     udp_sock.sendto((f'["proj", "{self.id}", {self.coords}]').encode("ascii"), [elem["addr"] for elem in udp_clients if elem["auth_token"] == users[client]["auth_token"]][0])
