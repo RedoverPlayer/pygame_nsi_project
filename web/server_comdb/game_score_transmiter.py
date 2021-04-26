@@ -38,3 +38,5 @@ def upade_player_info(json,time):
     #close the connection to the database.
     mydb.commit()
     cursor.close()
+
+communicate_game([1,2,3,4,5],[1,2,3,5,7],[5,2,4,6,1000],"vachekiri",150)

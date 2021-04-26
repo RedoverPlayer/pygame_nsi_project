@@ -1,14 +1,14 @@
 <?php
     function checkAuth($redirect=True) {
         require('database.php');
-        if (isset($_SESSION['id'], $_SESSION['email'], $_SESSION['username'], $_SESSION['verified_email']) == False AND isset($_COOKIE['authentication_hash'])) {
+        if (isset($_SESSION['id'], $_SESSION['email'], $_SESSION['username'], $_SESSION['verified_email']) === False AND isset($_COOKIE['authentication_hash'])) {
             $sth = $db->prepare('SELECT * FROM users_accounts WHERE authentication_hash=:authentication_hash');
             $sth->execute([
                 ':authentication_hash' => $result['authentication_hash'],
             ]);
             $result = $sth->fetch();
     
-            if ($result == True AND isset($result['id'], $result['email'], $result['username'], $result['verified_email'])) {
+            if ($result === True AND isset($result['id'], $result['email'], $result['username'], $result['verified_email'])) {
                 $_SESSION['id'] = $result['id'];
                 $_SESSION['email'] = $result['email'];
                 $_SESSION['username'] = $result['username'];
@@ -16,7 +16,7 @@
             } else {
                 header("Location: login.php");
             }
-        } else if (isset($_SESSION['id'], $_SESSION['email'], $_SESSION['username'], $_SESSION['verified_email']) == False AND $redirect) {
+        } else if (isset($_SESSION['id'], $_SESSION['email'], $_SESSION['username'], $_SESSION['verified_email']) === False AND $redirect) {
             header("Location: login.php");
         }
     }

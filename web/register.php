@@ -1,3 +1,4 @@
+  
 <!DOCTYPE html>
 <?php
     session_start();
@@ -64,7 +65,7 @@
    <div class="wrapper">
        <h2>Please fill this form to register</h2>
 
-       <form id="login" method="post" action="./something.php">
+       <form id="login" method="post" action="./register.php">
         <input class="entry1" name="email" id="email" type="text" placeholder="email" required>
         <input class="entry1" name="username" id="username" type="text" placeholder="username" required>
         <input class="entry1" name="password" id="password" type="password" placeholder="password" required>

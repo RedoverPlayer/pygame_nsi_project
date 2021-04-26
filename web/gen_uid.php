@@ -1,5 +1,5 @@
 <?php
-    function gen_uid($l=28) {
+    function gen_uid($l=32) {
         $str = "";
         for ($x=0;$x<$l;$x++) $str .= substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyz"), 0, 1);    
         return $str;

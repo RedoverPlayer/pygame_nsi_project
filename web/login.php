@@ -7,7 +7,7 @@
     checkAuth($redirect=False);
 
     if (isset($_POST['email'],$_POST['password'])){
-        $tmp = $db->prepare('SELECT * FROM accounts WHERE EMAIL=:email');
+        $tmp = $db->prepare('SELECT * FROM accounts WHERE email=:email');
         $tmp->execute([
             ':email'=>$_POST['email']
         ]);
@@ -17,13 +17,17 @@
                 $_SESSION['id'] = $result['id'];
                 $_SESSION['email'] = $result['email'];
                 $_SESSION['username'] = $result['username'];
-                //$_SESSION['verified_email'] = $result['verified_email'];
-                // if (isset($_POST['http_referer'])) {
-                //     header("Location: " . $_POST['http_referer']);
-                // } else {
-                     header("Location: index.php");
-                // }
-            } else {
+                $_SESSION['verif_email'] = $result['verif_email'];
+                if ($result['verif_email']==1){
+                    // if (isset($_POST['http_referer'])) {
+                    //     header("Location: " . $_POST['http_referer']);
+                    // } else {
+                    header("Location: index.php");
+                    // }
+                }else{
+                    print("<a href='http://" .$_SERVER['HTTP_HOST']. "/projectNSI/create_token.php'>Verify your email</a>");
+                    }
+            }else{
                 print("<p class='error'>Wrong password</p>");
             }
         }else{
@@ -51,5 +55,5 @@
         <br>
         <input class="send styled" type="submit" id="formlogin" value="Login">
        </form> 
-       <p>Don't have an account ? <a href="something.php">Sign Up</a></p>
+       <p>Don't have an account ? <a href="register.php">Sign Up</a></p>
 </body>
