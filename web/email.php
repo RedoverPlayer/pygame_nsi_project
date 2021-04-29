@@ -12,12 +12,12 @@ function sendMail($remoteaddr, $subject, $body) {
     $mail->isSMTP();
     $mail->SMTPAuth = true;
     $mail->SMTPSecure = 'ssl';
-    $mail->Host = 'smtp.gmail.com';
+    $mail->Host = 'azerty.com';
     $mail->Port = '465';
     $mail->isHTML();
-    $mail->Username = 'adressmail';
-    $mail->Password = 'password';
-    $mail->SetFrom('adressmail','Server Name');
+    $mail->Username = 'azerty@gmail.com';
+    $mail->Password = 'azerty';
+    $mail->SetFrom('azerty@gmail.com','Server Name');
     
     $mail->Subject = $subject;
     $mail->Body = $body;

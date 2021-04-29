@@ -31,5 +31,5 @@ function sendMail($remoteaddr, $subject, $body) {
         print("An error occured");
     }
 }
-SendMail("", "Verify your email", "<h1>Jeu en cours de développement, nom sujet à modifications </h1><h2>Please verify your email by clicking this link : verify_email.php?token_id= '>Verify you email</a></h2>")
+SendMail("com", "Verify your email", "<h1>Jeu en cours de développement, nom sujet à modifications </h1><h2>Please verify your email by clicking this link : verify_email.php?token_id= '>Verify you email</a></h2>")
 ?>

@@ -25,6 +25,7 @@
                     header("Location: index.php");
                     // }
                 }else{
+                    $_SESSION['email_type']=0;
                     print("<a href='http://" .$_SERVER['HTTP_HOST']. "/projectNSI/create_token.php'>Verify your email</a>");
                     }
             }else{
@@ -56,4 +57,5 @@
         <input class="send styled" type="submit" id="formlogin" value="Login">
        </form> 
        <p>Don't have an account ? <a href="register.php">Sign Up</a></p>
+       <p>Forgot your password ? <a href="forgotten_pass.php">Reset it</a></p>
 </body>
