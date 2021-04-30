@@ -5,7 +5,6 @@
     require('gen_uid.php');
     require('auth_checker.php');
     checkAuth($redirect=False);
-    
     if (isset($_POST['email'])==true){
         $tmp = $db->prepare('SELECT * FROM accounts WHERE email=:email');
         $tmp->execute([
