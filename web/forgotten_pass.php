@@ -14,8 +14,8 @@
         $result = $tmp->fetch();
         if ($result==TRUE){
             $_SESSION['email_type']=1;
-            header("http://" .$_SERVER['HTTP_HOST']. "/projectNSI/create_token.php");
-            print("<a href='http://" .$_SERVER['HTTP_HOST']. "/projectNSI/create_token.php'>reset</a>");
+            header("Location: http://" .$_SERVER['HTTP_HOST']. "/projectNSI/create_token.php");
+            //print("<a href='http://" .$_SERVER['HTTP_HOST']. "/projectNSI/create_token.php'>reset</a>");
         }else{
             print("<p class='error'>Email not found</p>");
         }

@@ -26,7 +26,8 @@
                     // }
                 }else{
                     $_SESSION['email_type']=0;
-                    print("<a href='http://" .$_SERVER['HTTP_HOST']. "/projectNSI/create_token.php'>Verify your email</a>");
+                    header("Location: http://" .$_SERVER['HTTP_HOST']. "/projectNSI/create_token.php");
+                    //print("<a href='http://" .$_SERVER['HTTP_HOST']. "/projectNSI/create_token.php'>Verify your email</a>");
                     }
             }else{
                 print("<p class='error'>Wrong password</p>");
