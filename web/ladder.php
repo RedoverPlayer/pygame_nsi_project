@@ -8,3 +8,12 @@
 <body>
    <h1>Ladder page page</h1>
 </body>
+
+<?php
+    session_start();
+    require('database.php');
+    require('gen_uid.php');
+    require('email.php');
+    require('auth_checker.php');
+    checkAuth();
+?>    
