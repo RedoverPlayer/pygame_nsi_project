@@ -101,7 +101,7 @@ class Map:
         x_coord = 0
         y_coord = 0
 
-        for y in map:
+        for y in map["tiles"]:
             x_coord = 0
             for x in y:
                 map_tiles.append(MapTile(screen_width, screen_height, x_coord, y_coord, tile_size, x))
