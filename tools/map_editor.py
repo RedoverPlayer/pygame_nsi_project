@@ -10,10 +10,12 @@ from pygame.locals import (MOUSEWHEEL, QUIT)
 
 # ---- Config ----
 
-window_size = (1080, 1080) # The map display will be a square. Note that the window should be divisible by 60 to fit the size of the map
+window_size = (1500, 850) # The map display will be a square. Note that the window should be divisible by 60 to fit the size of the map
 frames_per_second = 144
 
 # ----------------
+
+map_data = {}
 
 class MapTile(pygame.sprite.Sprite):
     def __init__(self, screen_width, screen_height, x, y, tile_size, type="wall"):
@@ -91,11 +93,18 @@ class MapTile(pygame.sprite.Sprite):
                 screen.blit(self.surf2, (self.coords[0], self.coords[1] - self.tile_size // 2))
 
 class Map:
+    id_to_tile = ["terrain", "wall", "bush", "water", "crate", "barrel", "cactus"]
+    tile_to_id = {"terrain": 0, "wall": 1, "bush": 2, "water": 3, "crate": 4, "barrel": 5, "cactus": 6}
+
     def __init__(self, map_file, tile_size, map_size, screen_width, screen_height):
+        global map_data
+
         # Load map from json
         with open(map_file, "r") as f:
             map = json.loads(f.read())
             map_tiles = []
+
+        map_data = map.copy()
 
         # generating map tiles
         x_coord = 0
@@ -104,7 +113,7 @@ class Map:
         for y in map["tiles"]:
             x_coord = 0
             for x in y:
-                map_tiles.append(MapTile(screen_width, screen_height, x_coord, y_coord, tile_size, x))
+                map_tiles.append(MapTile(screen_width, screen_height, x_coord, y_coord, tile_size, Map.id_to_tile[x]))
                 x_coord += tile_size
             y_coord += tile_size
 
@@ -183,11 +192,12 @@ while running:
     # render elements to the screen
     pygame.display.flip()
 
-map_list = [["terrain" for _ in range(60)] for _ in range(60)]
+print("Saving map...")
+map_list = [[0 for _ in range(60)] for _ in range(60)]
 x = 0
 y = 0
 for tile in map.tiles:
-    map_list[y][x] = tile.type
+    map_list[y][x] = Map.tile_to_id[tile.type]
     x += 1
     if x > 59:
         x = 0
@@ -195,5 +205,9 @@ for tile in map.tiles:
     if y >= 60:
         break
 
+map_data["tiles"] = map_list
+
 with open("map1.json", "w") as f:
-    f.write(json.dumps(map_list))
+    f.write(json.dumps(map_data))
+
+print("Saved")
