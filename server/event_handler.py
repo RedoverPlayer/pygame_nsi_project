@@ -29,7 +29,13 @@ def event_received(data, client, users, game_search, games):
         for game in games:
             for game_client in game.clients:
                 if client == game_client:
-                    if time.time() - game.stats_dict[client]["main_ability_timestamp"] >= 0.5:
-                        game.stats_dict[client]["main_ability_timestamp"] = time.time()
-                        game.stats_dict[client]["main_ability_status"] = "reloading"
-                        game.projs.append(abilities.Projectile(game.stats_dict[client]["position"], data["angle"], game, users[client]["id"]))
+                    if data["proj_type"] == "regular":
+                        if time.time() - game.stats_dict[client]["main_ability_timestamp"] >= 0.5:
+                            game.stats_dict[client]["main_ability_timestamp"] = time.time()
+                            game.stats_dict[client]["main_ability_status"] = "reloading"
+                            game.projs.append(abilities.Projectile(game.stats_dict[client]["position"], data["angle"], game, users[client]["id"], data["proj_type"]))
+                    else:
+                        if game.stats_dict[client]["ult_status"] == "available":
+                            game.stats_dict[client]["ult_percent"] = 0
+                            game.stats_dict[client]["ult_status"] = "reloading"
+                            game.projs.append(abilities.Projectile(game.stats_dict[client]["position"], data["angle"], game, users[client]["id"], "ult"))

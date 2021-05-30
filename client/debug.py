@@ -28,3 +28,6 @@ class Debug:
 
         fps_display = myfont.render(self.fps_text + " FPS", True, (250, 250, 250))
         screen.blit(fps_display, (5, 150))
+
+        ult_display = myfont.render("Ult : " + str(player.ult_reload) + " %", True, (250, 250, 250))
+        screen.blit(ult_display, (5, 200))

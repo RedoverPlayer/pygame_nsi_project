@@ -85,7 +85,10 @@ class ShowdownGame(Game):
             event_lock.acquire()
             for event in events:
                 if event["type"] == "add_proj":
-                    self.projs.append(abilities.Projectile(self.screen_width, self.screen_height, event["coords"], event["angle"], event["id"]))
+                    if event["proj_type"] == "regular":
+                        self.projs.append(abilities.Projectile(self.screen_width, self.screen_height, event["coords"], event["angle"], event["id"], "regular"))
+                    else:
+                        self.projs.append(abilities.Projectile(self.screen_width, self.screen_height, event["coords"], event["angle"], event["id"], "ult"))
                 elif event["type"] == "remove_proj":
                     for proj in self.projs:
                         if proj.id == event["id"]:
@@ -98,6 +101,12 @@ class ShowdownGame(Game):
                             rplayer.hp = event["hp"]
                 elif event["type"] == "main_ability_available":
                     self.player.main_ability_status = "available"
+                    self.player.ult_reload = 100
+                elif event["type"] == "ult_reload_update":
+                    self.player.ult_reload = event["percent"]
+                    print(event["percent"])
+                elif event["type"] == "ult_available":
+                    self.player.ult = "available"
                 elif event["type"] == "spawn_point":
                     self.player.coords = [event["coords"][0] * self.map.tile_size, event["coords"][1] * self.map.tile_size]
                     self.camera.coords = [event["coords"][0] * self.map.tile_size, event["coords"][1] * self.map.tile_size]

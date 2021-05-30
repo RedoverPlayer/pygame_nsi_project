@@ -10,7 +10,7 @@ class Game:
 
         stats_dict = {}
         for client in self.clients:
-            stats_dict[client] = {"hp": 400, "kills": 0, "damage_dealt": 0, "damage_taken": 0, "position": [0, 0], "main_ability_timestamp": time.time(), "main_ability_status": "reloading"}
+            stats_dict[client] = {"hp": 400, "kills": 0, "damage_dealt": 0, "damage_taken": 0, "position": [0, 0], "main_ability_timestamp": time.time(), "main_ability_status": "reloading", "ult_percent": 0, "ult_status": "reloading"}
         self.stats_dict = stats_dict
 
         for client in self.clients:
@@ -21,14 +21,22 @@ class Game:
 
         self.projs = []
 
+    def getStatsDictFromId(self, id):
+        return self.stats_dict[[elem for elem in self.stats_dict if elem in [elem for elem in self.users if self.users[elem]["id"] == id]][0]]
+
+    def getClientFromId(self, id):
+        return [elem for elem in self.users if self.users[elem]["id"] == id][0]
+
     def HPChangeProjectile(self, client, hp, sender_id):
         if self.stats_dict[client]["hp"] - hp <= 0:
-            self.stats_dict[[elem for elem in self.stats_dict if elem in [elem for elem in self.users if self.users[elem]["id"] == sender_id]][0]]["damage_dealt"] += hp
-            self.stats_dict[[elem for elem in self.stats_dict if elem in [elem for elem in self.users if self.users[elem]["id"] == sender_id]][0]]["kills"] += 1
+            self.getStatsDictFromId(sender_id)["damage_dealt"] += self.stats_dict[client]["hp"]
+            self.ultUpdate(sender_id, 20)
+            self.getStatsDictFromId(sender_id)["kills"] += 1
             self.stats_dict[client]["damage_taken"] += hp
             self.closeClient(client)
         else:
-            self.stats_dict[[elem for elem in self.stats_dict if elem in [elem for elem in self.users if self.users[elem]["id"] == sender_id]][0]]["damage_dealt"] += hp
+            self.getStatsDictFromId(sender_id)["damage_dealt"] += hp
+            self.ultUpdate(sender_id, 20)
             self.stats_dict[client]["damage_taken"] += hp
             self.stats_dict[client]["hp"] -= hp
             for c in [elem for elem in self.clients if elem != client]:
@@ -40,6 +48,21 @@ class Game:
                 client.send(('{"type": "hp_change", "hp": ' + str(self.stats_dict[client]["hp"]) + '}$').encode("ascii"))
             except:
                 print(traceback.format_exc())
+
+    def ultUpdate(self, user_id, percent_increase):
+        if self.getStatsDictFromId(user_id)["ult_percent"] + percent_increase < 100:
+            self.getStatsDictFromId(user_id)["ult_percent"] += percent_increase
+            try:
+                self.getClientFromId(user_id).send(('{"type": "ult_reload_update", "percent": ' + str(self.getStatsDictFromId(user_id)["ult_percent"]) + '}$').encode("ascii"))
+            except:
+                print(traceback.format_exc())
+        else:
+            self.getStatsDictFromId(user_id)["ult_percent"] = 100
+            self.getStatsDictFromId(user_id)["ult_status"] = "available"
+            try:
+                self.getClientFromId(user_id).send('{"type": "ult_available"}$'.encode("ascii"))
+            except:
+                print(traceback.format_exc())        
 
     def check_clients(self, games):
         if len(self.clients) == 1:
@@ -103,5 +126,5 @@ class ShowdownGame(Game):
             if self.stats_dict[client]["hp"] == 0:
                 self.closeClient(client, users)
 
-        for proj in self.projs: 
+        for proj in self.projs:
             proj.update(tick_time, udp_sock, self, udp_clients, users, self.stats_dict)

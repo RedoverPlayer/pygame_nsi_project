@@ -3,11 +3,15 @@ import math
 import traceback
 
 class Projectile:
-    def __init__(self, coords, angle, game, sender_id):
+    def __init__(self, coords, angle, game, sender_id, type="regular"):
         self.coords = coords
         self.angle = angle
-        self.damage = 20
+        if type == "regular":
+            self.damage = 40
+        else:
+            self.damage = 150
         self.sender_id = sender_id
+        self.type = type
 
         while True:
             self.id = genToken(8)
@@ -16,7 +20,7 @@ class Projectile:
 
         for client in game.clients:
             try:
-                client.send(('{"type": "add_proj", "id": "' + self.id + '", "coords": ' + str(self.coords) + ', "angle": ' + str(self.angle) + '}$').encode("ascii"))
+                client.send(('{"type": "add_proj", "id": "' + self.id + '", "proj_type": "' + self.type + '", "coords": ' + str(self.coords) + ', "angle": ' + str(self.angle) + '}$').encode("ascii"))
             except:
                 print(traceback.format_exc())
 
@@ -29,8 +33,12 @@ class Projectile:
                 print(traceback.format_exc())
 
     def update(self, tick_time, udp_sock, game, udp_clients, users, stats_dict):
-        self.coords[0] += math.cos(self.angle) * tick_time
-        self.coords[1] += math.sin(self.angle) * tick_time
+        if self.type == "regular":
+            self.coords[0] += math.cos(self.angle) * tick_time
+            self.coords[1] += math.sin(self.angle) * tick_time
+        else:
+            self.coords[0] += math.cos(self.angle) * tick_time * 4
+            self.coords[1] += math.sin(self.angle) * tick_time * 4        
 
         if self.coords[0] < 0 or self.coords[0] > 4800 or self.coords[1] < 0 or self.coords[1] > 4800:
             self.wallOrPlayerCollision(game)
