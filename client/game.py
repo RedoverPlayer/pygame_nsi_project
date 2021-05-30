@@ -98,6 +98,9 @@ class ShowdownGame(Game):
                             rplayer.hp = event["hp"]
                 elif event["type"] == "main_ability_available":
                     self.player.main_ability_status = "available"
+                elif event["type"] == "spawn_point":
+                    self.player.coords = [event["coords"][0] * self.map.tile_size, event["coords"][1] * self.map.tile_size]
+                    self.camera.coords = [event["coords"][0] * self.map.tile_size, event["coords"][1] * self.map.tile_size]
                 elif event["type"] == "game_ended":
                     ui_status[0] = "end_screen"
                     ui_status.append(event.copy())

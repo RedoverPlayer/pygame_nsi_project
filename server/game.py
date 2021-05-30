@@ -4,7 +4,7 @@ import time
 import map
 
 class Game:
-    def __init__(self, clients, users):
+    def __init__(self, clients, users, spawn_points):
         self.clients = clients
         self.users = users
 
@@ -17,7 +17,7 @@ class Game:
             connected_users = []
             for user in [elem for elem in users if elem in self.clients and elem != client]:
                 connected_users.append({"type": "player_connection", "id": users[user]["id"], "username": users[user]["username"]})
-            client.send(('{"type": "multiple_players_connection", "players": ' + json.dumps(connected_users) + '}$').encode("ascii"))
+            client.send(('{"type": "multiple_players_connection", "players": ' + json.dumps(connected_users) + ', "spawn_point": ' + str(spawn_points.pop(0)) + '}$').encode("ascii"))
 
         self.projs = []
 
@@ -85,9 +85,9 @@ class Game:
 
 class ShowdownGame(Game):
     def __init__(self, clients, users):
-        Game.__init__(self, clients, users)
-        self.gamemode = "showdown"
         self.map = map.Map("maps/map1.json", 80, 60, 200, 200)
+        Game.__init__(self, clients, users, self.map.spawn_points)
+        self.gamemode = "showdown"
 
     def update(self, users, games, tick_time, udp_sock, udp_clients):
         self.check_clients(games)
