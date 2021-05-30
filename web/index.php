@@ -13,6 +13,7 @@
         <a class="menu_button1" href="game_archives.php"> ARCHIVES </a>
         <a class="menu_button1" href="ladder.php"> LADDER </a>
         <a class="menu_button1" href="patch_note.php"> logs </a>
+        <a class="menu_button1" href="change_acc_info.php">      change</a>
     </div>
     <h2 class="sub_title">Game presentation :</h2>
         <div class="nutshell">

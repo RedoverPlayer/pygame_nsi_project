@@ -3,7 +3,7 @@
     <meta charset="UTF-8">
     <title>Account</title>
     <!-- <link rel="stylesheet" href="styles.css"> -->
-    <!-- <link rel="lazy css" href="https://some shit.css"> -->
+    <link rel="lazy css" href="https://some shit.css">
 </head> 
 <body>
 
@@ -21,23 +21,26 @@
        </form> 
        <p>Already have an account ? <a href="login.php">Login</a></p>
 
+       <div class="test">
+           <a href=#>link1</a>
+           <a href=#>link2</a>
+           <a href=#>link3</a>
+       </div>
+
     </div>   
 </body>
 
 </html>
 
 <?php
-    print("<p>Php started</p>");
+
     session_start();
     require('database.php');
     require('gen_uid.php');
     require('auth_checker.php');
-    require('navbar.php');
     checkAuth($redirect=False);
-    print("<p>".$_SESSION['id']."</p>");
-        
+    require('navbar.php');
     if (isset($_POST['username'], $_POST['password'])){  
-        print("<p>first if passed</p>"); 
         $tmp = $db->prepare('SELECT * FROM accounts WHERE id=:id');
         $tmp->execute([
             ':id'=>$_SESSION['id']
@@ -51,7 +54,6 @@
             $uploadOk = 1;
             $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
             $im_name = basename($_FILES["fileToUpload"]["name"]);
-            print("<p>im name ====".$im_name."<p/>");
 
             // Check if image file is a actual image or fake image
             if(isset($_POST["submit"])) {

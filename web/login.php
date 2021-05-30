@@ -18,6 +18,7 @@
                 $_SESSION['email'] = $result['email'];
                 $_SESSION['username'] = $result['username'];
                 $_SESSION['verif_email'] = $result['verif_email'];
+                $_SESSION['pp_name'] = $result['pp_name'];
                 if ($result['verif_email']==1){
                     // if (isset($_POST['http_referer'])) {
                     //     header("Location: " . $_POST['http_referer']);
