@@ -52,21 +52,24 @@ class MapTile(pygame.sprite.Sprite):
         return self
 
 class Map:
+    id_to_tile = ["terrain", "wall", "bush", "water", "crate", "barrel", "cactus"]
+    tile_to_id = {"terrain": 0, "wall": 1, "bush": 2, "water": 3, "crate": 4, "barrel": 5, "cactus": 6}
+
     def __init__(self, map_file, tile_size, map_size, screen_width, screen_height):
         # Load map from json
         with open(map_file, "r") as f:
-            map = json.loads(f.read())
+            map_data = json.loads(f.read())
             map_tiles = []
 
         # generating map tiles
         x_coord = 0
         y_coord = 0
 
-        for y in map:
+        for y in map_data["tiles"]:
             x_coord = 0
             tmp = []
             for x in y:
-                tmp.append(MapTile(screen_width, screen_height, x_coord, y_coord, tile_size, x))
+                tmp.append(MapTile(screen_width, screen_height, x_coord, y_coord, tile_size, Map.id_to_tile[x]))
                 x_coord += tile_size
             map_tiles.append(tmp)
             y_coord += tile_size
