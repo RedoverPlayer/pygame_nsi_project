@@ -6,17 +6,17 @@
             "normal_text": "#ffffff"
         },
         "font": {
-            "name": "opensans",
-            "size": "24",
+            "name": "press_start",
+            "size": "32",
             "bold": "0",
             "italic": "0",
-            "regular_path": "./fonts/open_sans/OpenSans-Regular.ttf"
+            "regular_path": "./fonts/press_start/PressStart2P-Regular.ttf"
         }
     },
     "button": {
         "font": {
             "name": "press_start",
-            "size": "32",
+            "size": "25",
             "bold": "0",
             "italic": "0",
             "regular_path": "./fonts/press_start/PressStart2P-Regular.ttf"
@@ -37,42 +37,13 @@
             "shape_corner_radius": "4"
         }
     },
-    "title": {
+    "map_data": {
         "font": {
-            "name": "press_start",
-            "size": "32",
-            "bold": "0",
-            "italic": "0",
-            "regular_path": "./fonts/press_start/PressStart2P-Regular.ttf"
-        }
-    },
-    "play_button": {
-        "font": {
-            "name": "opensans",
-            "size": "40",
+            "name": "open_sans",
+            "size": "44",
             "bold": "0",
             "italic": "0",
             "regular_path": "./fonts/open_sans/OpenSans-Regular.ttf"
-        },
-        "misc": {
-            "text_shadow": "1"
-        }
-    },
-    "play_button_text": {
-        "colours": {
-            "text_shadow": "#000000"
-        },
-        "font": {
-            "name": "opensans",
-            "size": "40",
-            "bold": "1",
-            "italic": "0",
-            "regular_path": "./fonts/open_sans/OpenSans-Regular.ttf"
-        },
-        "misc": {
-            "text_shadow": "1",
-            "text_shadow_size": "2",
-            "text_shadow_offset": "0, 0"
         }
     }
 }
