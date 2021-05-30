@@ -37,6 +37,9 @@ def run(connection_with_server, id, auth_token, rplayers, screen_width, screen_h
                 elif data["type"] == "multiple_players_connection":
                     for player in data["players"]:
                         rplayers.append(remote_player.RemotePlayer(screen_width, screen_height, player["id"], player["username"]))
+                    event_lock.acquire()
+                    events.append({"type": "spawn_point", "coords": data["spawn_point"]})
+                    event_lock.release()
                 elif data["type"] ==  "player_disconnection":
                     rplayers.remove([rplayer for rplayer in rplayers if rplayer.id == data["id"]][0])
                 else:

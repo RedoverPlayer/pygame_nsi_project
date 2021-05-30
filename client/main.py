@@ -32,7 +32,7 @@ def main_thread(screen, fps, ui_status, screen_width, screen_height, rplayers, p
 
         elif ui_status[0] == "showdown_game":
             rpc.update(state="In game", details="Showdown")
-            showdown_game = game.ShowdownGame(screen_width, screen_height, "map1.json", screen, fps, rplayers, projs, udp_sock, server_ip, id, auth_token, username, tcp_sock)
+            showdown_game = game.ShowdownGame(screen_width, screen_height, "./maps/map1.json", screen, fps, rplayers, projs, udp_sock, server_ip, id, auth_token, username, tcp_sock)
             showdown_game.run(ui_status, events, event_lock)
             rplayers.clear()
             projs.clear()
