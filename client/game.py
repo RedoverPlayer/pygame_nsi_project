@@ -101,12 +101,12 @@ class ShowdownGame(Game):
                             rplayer.hp = event["hp"]
                 elif event["type"] == "main_ability_available":
                     self.player.main_ability_status = "available"
-                    self.player.ult_reload = 100
                 elif event["type"] == "ult_reload_update":
                     self.player.ult_reload = event["percent"]
                     print(event["percent"])
                 elif event["type"] == "ult_available":
                     self.player.ult = "available"
+                    self.player.ult_reload = 100
                 elif event["type"] == "spawn_point":
                     self.player.coords = [event["coords"][0] * self.map.tile_size, event["coords"][1] * self.map.tile_size]
                     self.camera.coords = [event["coords"][0] * self.map.tile_size, event["coords"][1] * self.map.tile_size]
